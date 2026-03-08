@@ -19,7 +19,7 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
-  code_lint:
+  lint:
     name: Next.js Linting
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run Lint
-        run: npx next lint
+        run: npx next lint .
 
   build:
     name: Production Build
