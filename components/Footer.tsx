@@ -3,7 +3,7 @@ import Logo from "@/public/Logo.svg";
 
 const Footer = () => {
   return (
-    <footer className="bg-bakery-burgundy font-bakery-quicksand border-t border-white/10 py-4 text-white">
+    <footer className="bg-bakery-burgundy font-bakery-quicksand py-4 text-white">
       <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:px-12 lg:px-20 xl:px-24 2xl:px-40">
         <div className="flex w-full justify-center md:w-1/3 md:justify-start">
           <Image src={Logo} alt="Mahoroba Logo" />

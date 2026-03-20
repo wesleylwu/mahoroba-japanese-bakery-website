@@ -15,13 +15,6 @@ const hoverScale = {
   transition: { duration: 0.2 },
 };
 
-const navItemAnimation = {
-  initial: { opacity: 0, y: -10 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.3 },
-  whileHover: { scale: 1.05 },
-};
-
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -37,7 +30,7 @@ const Navbar = () => {
   return (
     <div className="font-bakery-quicksand bg-black text-white">
       <div className="hidden items-center justify-between border-b py-6 md:flex md:px-12 lg:px-20 xl:px-24 2xl:px-40">
-        <motion.div {...navItemAnimation} className="w-1/4">
+        <motion.div {...hoverScale} className="w-1/4">
           <Link href="/" className="flex items-center">
             <Image src={Logo} alt="Mahoroba Logo" priority />
           </Link>
@@ -47,14 +40,7 @@ const Navbar = () => {
           {middleLinks.map(({ link, text }, index) => {
             const isActive = pathname === `/${link}`;
             return (
-              <motion.div
-                key={index}
-                {...navItemAnimation}
-                transition={{
-                  ...navItemAnimation.transition,
-                  delay: index * 0.1,
-                }}
-              >
+              <motion.div key={index} {...hoverScale}>
                 <Link
                   href={`/${link}`}
                   className={`transition-colors ${
@@ -96,7 +82,7 @@ const Navbar = () => {
 
       <div className="md:hidden">
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <motion.div {...navItemAnimation}>
+          <motion.div {...hoverScale}>
             <Link href="/" onClick={closeMenu}>
               <Image src={Logo} alt="Mahoroba Logo" />
             </Link>
