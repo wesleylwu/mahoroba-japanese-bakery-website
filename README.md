@@ -1,4 +1,4 @@
-# Mahoroba Japanese Bakery (Unofficial)
+# Mahoroba Japanese Bakery
 
 ![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
