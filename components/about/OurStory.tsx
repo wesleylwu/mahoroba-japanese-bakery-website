@@ -27,7 +27,7 @@ const OurStory = () => {
     >
       <motion.p
         variants={itemVariants}
-        className="text-bakery-burgundy translate-y-10 text-3xl font-bold tracking-wide sm:text-4xl lg:hidden"
+        className="text-bakery-burgundy translate-y-10 text-2xl font-bold tracking-wide sm:text-3xl lg:hidden"
       >
         Our Story
       </motion.p>
@@ -39,20 +39,20 @@ const OurStory = () => {
         <Image
           src={Baker}
           alt="Mahoroba Baker Narusuke Monguchi"
-          className="ml-10 lg:ml-0"
+          className="ml-16 sm:ml-20 lg:ml-0"
         />
       </motion.div>
 
       <div className="ml-4 flex w-full flex-col items-center justify-center gap-6 text-center lg:ml-28 lg:w-1/2 lg:items-start lg:gap-8 lg:text-left xl:ml-32 2xl:ml-36">
         <motion.p
           variants={itemVariants}
-          className="text-bakery-burgundy hidden text-4xl font-bold tracking-wide lg:block lg:text-5xl xl:text-6xl 2xl:text-7xl"
+          className="text-bakery-burgundy hidden text-3xl font-bold tracking-wide lg:block lg:text-4xl xl:text-5xl 2xl:text-6xl"
         >
           Our Story
         </motion.p>
         <motion.p
           variants={itemVariants}
-          className="w-full text-sm leading-relaxed tracking-wider sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 2xl:leading-loose"
+          className="w-full text-xs leading-relaxed tracking-wider sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 2xl:leading-loose"
         >
           The bakery was opened in 2009 by owner and baker Narusuke Monguchi.
           When choosing where to open his bakery, Monguchi liked that Sacramento
