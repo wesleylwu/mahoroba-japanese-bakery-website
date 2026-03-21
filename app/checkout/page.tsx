@@ -1,14 +1,14 @@
 import Header from "@/components/Header";
-const Orders = () => {
+const Checkout = () => {
   return (
     <>
       <Header>
-        Orders
+        Checkout
         <br />
-        注文履歴
+        チェックアウト
       </Header>
     </>
   );
 };
 
-export default Orders;
+export default Checkout;
