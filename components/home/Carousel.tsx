@@ -197,7 +197,7 @@ const Carousel = ({ photos }: CarouselMainProps) => {
           {photos.map((_, index) => (
             <button
               key={index}
-              className={`h-3 w-3 rounded-full transition-all duration-300 ${
+              className={`h-3 w-3 cursor-pointer rounded-full transition-all duration-300 ${
                 currIndex === index
                   ? "scale-110 bg-white"
                   : "bg-white/50 hover:bg-white/80"

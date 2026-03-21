@@ -24,7 +24,9 @@ const Navbar = () => {
 
   const middleLinks = NavbarLinks.filter(
     (item) =>
-      item.text !== "login" && item.text !== "cart" && item.text !== "contact",
+      item.text !== "profile" &&
+      item.text !== "cart" &&
+      item.text !== "contact",
   );
 
   return (
@@ -59,9 +61,9 @@ const Navbar = () => {
         <div className="flex w-1/4 justify-end gap-8 text-3xl">
           <motion.div {...hoverScale}>
             <Link
-              href="/login"
+              href="/profile"
               className={`transition-colors ${
-                pathname === "/login" ? "text-bakery-red" : "text-white"
+                pathname === "/profile" ? "text-bakery-red" : "text-white"
               }`}
             >
               <CgProfile />
@@ -134,10 +136,10 @@ const Navbar = () => {
                 transition={{ delay: middleLinks.length * 0.1 }}
               >
                 <Link
-                  href="/login"
+                  href="/profile"
                   onClick={closeMenu}
                   className={`text-4xl ${
-                    pathname === "/login" ? "text-bakery-red" : "text-white"
+                    pathname === "/profile" ? "text-bakery-red" : "text-white"
                   }`}
                 >
                   <CgProfile />

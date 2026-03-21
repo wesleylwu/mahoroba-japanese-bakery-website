@@ -20,8 +20,8 @@ const NavBarLinks = [
     link: "info",
   },
   {
-    text: "login",
-    link: "login",
+    text: "profile",
+    link: "profile",
   },
   {
     text: "cart",

@@ -1,14 +1,14 @@
 import Header from "@/components/Header";
-const Orders = () => {
+const Profile = () => {
   return (
     <>
       <Header>
-        Orders
+        Profile
         <br />
-        注文履歴
+        マイページ
       </Header>
     </>
   );
 };
 
-export default Orders;
+export default Profile;
