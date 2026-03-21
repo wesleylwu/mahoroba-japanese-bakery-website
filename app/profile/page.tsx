@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Information from "@/components/profile/Information";
 const Profile = () => {
   return (
     <>
@@ -7,6 +8,7 @@ const Profile = () => {
         <br />
         マイページ
       </Header>
+      <Information />
     </>
   );
 };

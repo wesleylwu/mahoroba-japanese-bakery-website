@@ -27,7 +27,7 @@ const WhoWeAre = () => {
     >
       <motion.p
         variants={itemVariants}
-        className="text-bakery-burgundy translate-y-10 text-3xl font-bold tracking-wide sm:text-4xl lg:hidden"
+        className="text-bakery-burgundy translate-y-10 text-2xl font-bold tracking-wide sm:text-3xl lg:hidden"
       >
         Who We Are
       </motion.p>
@@ -46,13 +46,13 @@ const WhoWeAre = () => {
       <div className="flex w-full flex-col items-center justify-center gap-6 text-center lg:w-1/2 lg:items-start lg:gap-8 lg:text-left">
         <motion.p
           variants={itemVariants}
-          className="text-bakery-burgundy hidden text-4xl font-bold tracking-wide lg:block lg:text-5xl xl:text-6xl 2xl:text-7xl"
+          className="text-bakery-burgundy hidden text-3xl font-bold tracking-wide lg:block lg:text-4xl xl:text-5xl 2xl:text-6xl"
         >
           Who We Are
         </motion.p>
         <motion.p
           variants={itemVariants}
-          className="w-full text-sm leading-relaxed tracking-wider sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl 2xl:leading-loose"
+          className="w-full text-xs leading-relaxed tracking-wider sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 2xl:leading-loose"
         >
           Mahoroba Japanese Bakery is a family-run bakery in West Sacramento
           known for its freshly baked Japanese pastries and breads. Combining
