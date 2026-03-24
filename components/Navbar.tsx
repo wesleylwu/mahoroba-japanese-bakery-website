@@ -9,6 +9,7 @@ import { CgProfile } from "react-icons/cg";
 import { HiOutlineShoppingCart, HiMenuAlt3 } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import Logo from "@/public/Logo.svg";
+import Cart, { CartItemType } from "@/components/menu/Cart";
 
 const hoverScale = {
   whileHover: { scale: 1.05 },
@@ -17,6 +18,10 @@ const hoverScale = {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
+
   const pathname = usePathname();
 
   const handleClick = () => setIsOpen(!isOpen);
@@ -28,6 +33,18 @@ const Navbar = () => {
       item.text !== "cart" &&
       item.text !== "contact",
   );
+
+  const handleUpdateQuantity = (id: string, newQuantity: number) => {
+    setCartItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, quantity: newQuantity } : item,
+      ),
+    );
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setCartItems((items) => items.filter((item) => item.id !== id));
+  };
 
   return (
     <div className="font-bakery-quicksand bg-black text-white">
@@ -70,14 +87,12 @@ const Navbar = () => {
             </Link>
           </motion.div>
           <motion.div {...hoverScale}>
-            <Link
-              href="/cart"
-              className={`transition-colors ${
-                pathname === "/cart" ? "text-bakery-red" : "text-white"
-              }`}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="hover:text-bakery-red flex cursor-pointer items-center text-white transition-colors"
             >
               <HiOutlineShoppingCart />
-            </Link>
+            </button>
           </motion.div>
         </div>
       </div>
@@ -90,13 +105,15 @@ const Navbar = () => {
             </Link>
           </motion.div>
 
-          <motion.div
-            onClick={handleClick}
-            className="text-white hover:cursor-pointer"
-            {...hoverScale}
-          >
-            {isOpen ? <IoClose size={36} /> : <HiMenuAlt3 size={36} />}
-          </motion.div>
+          <div className="flex items-center gap-4">
+            <motion.div
+              onClick={handleClick}
+              className="text-white hover:cursor-pointer"
+              {...hoverScale}
+            >
+              {isOpen ? <IoClose size={36} /> : <HiMenuAlt3 size={36} />}
+            </motion.div>
+          </div>
         </div>
 
         <motion.div
@@ -150,20 +167,28 @@ const Navbar = () => {
                 animate={{ opacity: isOpen ? 1 : 0 }}
                 transition={{ delay: (middleLinks.length + 1) * 0.1 }}
               >
-                <Link
-                  href="/cart"
-                  onClick={closeMenu}
-                  className={`text-4xl ${
-                    pathname === "/cart" ? "text-bakery-red" : "text-white"
-                  }`}
+                <button
+                  onClick={() => {
+                    closeMenu();
+                    setIsCartOpen(true);
+                  }}
+                  className="hover:text-bakery-red flex cursor-pointer items-center text-4xl text-white"
                 >
                   <HiOutlineShoppingCart />
-                </Link>
+                </button>
               </motion.div>
             </div>
           </div>
         </motion.div>
       </div>
+
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveItem}
+      />
     </div>
   );
 };
