@@ -19,6 +19,19 @@ interface CartProps {
   onRemoveItem: (id: string) => void;
 }
 
+const overlayAnimation = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+const drawerAnimation = {
+  initial: { x: "100%" },
+  animate: { x: 0 },
+  exit: { x: "100%" },
+  transition: { type: "spring" as const, damping: 25, stiffness: 200 },
+};
+
 const Cart = ({
   isOpen,
   onClose,
@@ -54,27 +67,22 @@ const Cart = ({
       {isOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            {...overlayAnimation}
             onClick={onClose}
             className="absolute inset-0 cursor-pointer bg-black/60 backdrop-blur-sm"
           />
 
           <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            {...drawerAnimation}
             className="relative z-10 flex h-full w-full max-w-md flex-col rounded-l-3xl bg-white shadow-2xl"
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-gray-200 p-6">
+            <div className="border-bakery-gray flex shrink-0 items-center justify-between border-b p-6">
               <p className="font-bakery-noto text-2xl font-bold text-black">
                 Your Order
               </p>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black font-bold text-white transition-colors hover:bg-gray-800"
+                className="hover:bg-bakery-burgundy flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black font-bold text-white transition-colors"
               >
                 <HiOutlineX size={20} />
               </button>
@@ -90,9 +98,9 @@ const Cart = ({
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center gap-4 border-b border-gray-200 py-6 last:border-b-0"
+                      className="border-bakery-gray flex items-center gap-4 border-b py-6 last:border-b-0"
                     >
-                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white">
+                      <div className="border-bakery-gray relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border bg-white">
                         <Image
                           src={item.image}
                           alt={item.title}
@@ -110,20 +118,23 @@ const Cart = ({
                         </p>
                       </div>
 
-                      <div className="flex h-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-gray-200">
+                      <div className="border-bakery-gray flex h-10 shrink-0 items-center overflow-hidden rounded-full border-2">
                         {item.quantity === 1 ? (
                           <button
                             onClick={() => onRemoveItem(item.id)}
-                            className="group flex h-full cursor-pointer items-center justify-center px-3 transition-colors hover:bg-gray-100"
+                            className="hover:bg-bakery-gray/50 group flex h-full cursor-pointer items-center justify-center px-3 transition-colors"
                           >
-                            <HiOutlineTrash size={18} className="text-black" />
+                            <HiOutlineTrash
+                              size={18}
+                              className="group-hover:text-bakery-red text-black transition-colors"
+                            />
                           </button>
                         ) : (
                           <button
                             onClick={() =>
                               onUpdateQuantity(item.id, item.quantity - 1)
                             }
-                            className="flex h-full cursor-pointer items-center justify-center px-3 text-lg text-black transition-colors hover:bg-gray-100"
+                            className="hover:bg-bakery-gray/50 flex h-full cursor-pointer items-center justify-center px-3 text-lg text-black transition-colors"
                           >
                             -
                           </button>
@@ -140,7 +151,7 @@ const Cart = ({
                               Math.min(100, item.quantity + 1),
                             )
                           }
-                          className="flex h-full cursor-pointer items-center justify-center px-3 text-lg text-black transition-colors hover:bg-gray-100"
+                          className="hover:bg-bakery-gray/50 flex h-full cursor-pointer items-center justify-center px-3 text-lg text-black transition-colors"
                         >
                           +
                         </button>
@@ -151,7 +162,7 @@ const Cart = ({
               )}
             </div>
 
-            <div className="shrink-0 rounded-bl-3xl border-t border-gray-200 bg-white p-6">
+            <div className="border-bakery-gray shrink-0 rounded-bl-3xl border-t bg-white p-6">
               <div className="mb-6 flex items-center justify-between">
                 <p className="font-bakery-noto text-xl font-bold text-black">
                   Total:
@@ -163,7 +174,7 @@ const Cart = ({
               <button
                 onClick={handleCheckout}
                 disabled={items.length === 0}
-                className="bg-bakery-burgundy w-full cursor-pointer rounded-full px-6 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-bakery-burgundy hover:bg-bakery-burgundy/90 w-full cursor-pointer rounded-full px-6 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Proceed to Checkout
               </button>
