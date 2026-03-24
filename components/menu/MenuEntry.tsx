@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { MenuItem } from "@/data/Products";
-import MenuCard from "./MenuCard";
-import ProductModal from "./ProductModal";
+import MenuCard from "@/components/menu/MenuCard";
+import ProductModal from "@/components/menu/ProductModal";
 
 interface MenuEntryProps {
   items: MenuItem[];

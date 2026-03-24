@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import CheckoutPage from "@/components/checkout/CheckoutPage";
 const Checkout = () => {
   return (
     <>
@@ -7,6 +8,7 @@ const Checkout = () => {
         <br />
         チェックアウト
       </Header>
+      <CheckoutPage />
     </>
   );
 };

@@ -12,12 +12,12 @@ interface ProductModalProps {
   onAddToCart: (item: MenuItem, quantity: number) => void;
 }
 
-export default function ProductModal({
+const ProductModal = ({
   item,
   isOpen,
   onClose,
   onAddToCart,
-}: ProductModalProps) {
+}: ProductModalProps) => {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function ProductModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 cursor-pointer bg-black/60 backdrop-blur-sm"
           />
 
           <motion.div
@@ -125,4 +125,6 @@ export default function ProductModal({
       )}
     </AnimatePresence>
   );
-}
+};
+
+export default ProductModal;
