@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import OrdersPage from "@/components/orders/OrdersPage";
 const Orders = () => {
   return (
     <>
@@ -7,6 +8,7 @@ const Orders = () => {
         <br />
         注文履歴
       </Header>
+      <OrdersPage />
     </>
   );
 };

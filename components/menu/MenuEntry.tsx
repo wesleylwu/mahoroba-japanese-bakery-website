@@ -1,36 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MenuItem } from "@/data/Products";
 import MenuCard from "@/components/menu/MenuCard";
-import ProductModal from "@/components/menu/ProductModal";
+import ProductModal from "@/components/menu/ProductPopup";
 
 interface MenuEntryProps {
   items: MenuItem[];
+  activeCategory: string;
 }
 
 const CATEGORIES = [
-  "ALL",
-  "SWEET",
-  "SAVORY",
-  "PIES & DANISHES",
-  "LOAVES & ROLLS",
-] as const;
+  { name: "ALL", path: "/menu" },
+  { name: "SWEET", path: "/menu/sweet" },
+  { name: "SAVORY", path: "/menu/savory" },
+  { name: "PIES & DANISHES", path: "/menu/pies-and-danishes" },
+  { name: "LOAVES & ROLLS", path: "/menu/loaves-and-rolls" },
+];
 
-const MenuEntry = ({ items }: MenuEntryProps) => {
-  const [filter, setFilter] = useState<string>("ALL");
+const MenuEntry = ({ items, activeCategory }: MenuEntryProps) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredItems =
-    filter === "ALL"
+    activeCategory === "ALL"
       ? items
-      : items.filter((item) => item.category.toUpperCase() === filter);
+      : items.filter((item) => item.category.toUpperCase() === activeCategory);
 
   const displayCategories =
-    filter === "ALL"
+    activeCategory === "ALL"
       ? ["sweet", "savory", "pies & danishes", "loaves & rolls"]
-      : [filter.toLowerCase()];
+      : [activeCategory.toLowerCase()];
 
   const handleOpenModal = (item: MenuItem) => {
     setSelectedItem(item);
@@ -48,26 +49,32 @@ const MenuEntry = ({ items }: MenuEntryProps) => {
 
   return (
     <div className="bg-bakery-cream relative min-h-screen w-full">
+      <div className="pt-16 text-center">
+        <p className="font-bakery-noto text-bakery-burgundy text-4xl font-bold tracking-wider uppercase md:text-5xl">
+          {activeCategory === "ALL" ? "MENU" : activeCategory}
+        </p>
+      </div>
+
       <div className="border-bakery-gray flex flex-wrap justify-center gap-8 border-b py-12 md:gap-16">
         {CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setFilter(cat)}
+          <Link
+            href={cat.path}
+            key={cat.name}
             className={`cursor-pointer text-base font-bold tracking-widest transition-colors md:text-xl ${
-              filter === cat
+              activeCategory === cat.name
                 ? "text-bakery-burgundy underline underline-offset-8"
                 : "hover:text-bakery-burgundy text-black"
             }`}
           >
-            {cat}
-          </button>
+            <p>{cat.name}</p>
+          </Link>
         ))}
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         {displayCategories.map((catName) => {
           const categoryItems = filteredItems.filter(
-            (item) => item.category === catName,
+            (item) => item.category.toLowerCase() === catName,
           );
 
           if (categoryItems.length === 0) return null;
