@@ -5,29 +5,19 @@ interface PageProps {
   params: Promise<{ category: string }>;
 }
 
-const Category = async ({ params }: PageProps) => {
+const CategoryPage = async ({ params }: PageProps) => {
   const { category } = await params;
 
   const categoryMap: Record<string, string> = {
-    sweet: "sweet",
-    savory: "savory",
-    "pies-danishes": "pies & danishes",
-    "loaves-rolls": "loaves & rolls",
+    sweet: "SWEET",
+    savory: "SAVORY",
+    "pies-and-danishes": "PIES & DANISHES",
+    "loaves-and-rolls": "LOAVES & ROLLS",
   };
 
-  const actualCategory = categoryMap[category] || category;
-  const filteredItems = Products.filter(
-    (item) => item.category === actualCategory,
-  );
+  const activeCategory = categoryMap[category];
 
-  return (
-    <>
-      <div>
-        <p className="capitalize">{actualCategory}</p>
-      </div>
-      <MenuEntry items={filteredItems} />
-    </>
-  );
+  return <MenuEntry items={Products} activeCategory={activeCategory} />;
 };
 
-export default Category;
+export default CategoryPage;
