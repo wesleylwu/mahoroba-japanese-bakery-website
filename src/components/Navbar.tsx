@@ -13,6 +13,7 @@ import Logo from "@/public/Logo.svg";
 import Cart, { CartItemType } from "@/src/components/Cart";
 import StrawberryAnko from "@/public/menu/StrawberryAnko.webp";
 import Sunrise from "@/public/menu/Sunrise.webp";
+import { useSession } from "next-auth/react";
 
 const hoverScale = {
   whileHover: { scale: 1.05 },
@@ -49,16 +50,24 @@ const Navbar = () => {
   const [cartItems, setCartItems] = useState<CartItemType[]>(MOCK_CART_ITEMS);
 
   const pathname = usePathname();
+  const { status } = useSession();
 
   const handleClick = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
 
-  const middleLinks = NavbarLinks.filter(
-    (item) =>
-      item.text !== "profile" &&
-      item.text !== "cart" &&
-      item.text !== "contact",
-  );
+  const middleLinks = NavbarLinks.filter((item) => {
+    if (
+      item.text === "profile" ||
+      item.text === "cart" ||
+      item.text === "contact"
+    ) {
+      return false;
+    }
+    if (item.text === "orders" && status !== "authenticated") {
+      return false;
+    }
+    return true;
+  });
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     setCartItems((items) =>
@@ -73,7 +82,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="font-bakery-quicksand bg-black text-white">
+    <div className="font-bakery-quicksand sticky top-0 z-50 w-full bg-black text-white">
       <div className="hidden items-center justify-between border-b py-6 md:flex md:px-12 lg:px-20 xl:px-24 2xl:px-40">
         <div className="w-1/4">
           <Link href="/" className="flex items-center">

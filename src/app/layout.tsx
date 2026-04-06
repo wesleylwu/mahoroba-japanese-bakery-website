@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Noto_Sans_JP, Quicksand } from "next/font/google";
 import Navbar from "@/src/components/Navbar";
 import Footer from "@/src/components/Footer";
+import AuthProvider from "@/src/components/AuthProvider";
+import QueryProvider from "../components/QueryProvider";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 const notoSansJP = Noto_Sans_JP({
@@ -15,7 +19,7 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: "Mahoroba Bakery Orders",
+  title: "Mahoroba Japanese Bakery",
   description:
     "Full-stack bakery ordering system inspired by Mahoroba Japanese Bakery workflows.",
 };
@@ -30,9 +34,18 @@ export default function RootLayout({
       <body
         className={`${notoSansJP.variable} ${quicksand.variable} antialiased`}
       >
-        <Navbar />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <QueryProvider>
+            <Navbar />
+            {children}
+            <Footer />
+            <ToastContainer
+              position="bottom-right"
+              theme="dark"
+              autoClose={3000}
+            />
+          </QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

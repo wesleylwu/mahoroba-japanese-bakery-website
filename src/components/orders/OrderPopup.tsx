@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from "motion/react";
 import { HiOutlineX } from "react-icons/hi";
+import { useSession } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface OrderItem {
   id: string;
@@ -14,7 +16,7 @@ export interface Order {
   id: string;
   date: string;
   total: string;
-  status: "Preparing" | "Ready" | "Picked Up";
+  status: "Preparing" | "Ready" | "Picked Up" | "Canceled";
   items: OrderItem[];
 }
 
@@ -37,17 +39,41 @@ const popupAnimation = {
 };
 
 const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
+
   const getStatusColor = (status: Order["status"]) => {
     switch (status) {
       case "Preparing":
-        return "bg-bakery-red/10 text-bakery-red border-bakery-red/20";
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
       case "Ready":
-        return "bg-bakery-olive/10 text-bakery-olive border-bakery-olive/20";
+        return "bg-green-100 text-green-700 border-green-200";
       case "Picked Up":
-        return "bg-bakery-gray text-black/60 border-bakery-gray";
+        return "bg-gray-100 text-gray-600 border-gray-200";
+      case "Canceled":
+        return "bg-red-100 text-red-700 border-red-200";
       default:
-        return "bg-bakery-gray text-black border-bakery-gray";
+        return "bg-gray-100 text-gray-600 border-gray-200";
     }
+  };
+
+  const handleStatusChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    if (!order) return;
+    const newStatus = e.target.value;
+    if (!newStatus) return;
+
+    await fetch(`/api/orders`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: order.id, status: newStatus }),
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
+    onClose();
   };
 
   return (
@@ -66,7 +92,7 @@ const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
           >
             <div className="border-bakery-gray flex shrink-0 items-center justify-between border-b p-6 md:p-8">
               <p className="font-bakery-noto text-2xl font-bold text-black md:text-3xl">
-                Order #{order.id}
+                Order #{order.id.slice(0, 8)}
               </p>
               <div
                 onClick={onClose}
@@ -92,11 +118,32 @@ const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
                   </p>
                   <div className="mt-2 inline-block">
                     <div
-                      className={`rounded-full border px-4 py-2 text-sm font-bold tracking-wider uppercase ${getStatusColor(
+                      className={`flex w-max items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold tracking-wider uppercase ${getStatusColor(
                         order.status,
                       )}`}
                     >
-                      <p>{order.status}</p>
+                      {session?.user.isAdmin ? (
+                        <select
+                          defaultValue={order.status}
+                          onChange={handleStatusChange}
+                          className="cursor-pointer bg-transparent font-bold uppercase outline-none"
+                        >
+                          <option value="Preparing" className="text-black">
+                            Preparing
+                          </option>
+                          <option value="Ready" className="text-black">
+                            Ready
+                          </option>
+                          <option value="Picked Up" className="text-black">
+                            Picked Up
+                          </option>
+                          <option value="Canceled" className="text-black">
+                            Canceled
+                          </option>
+                        </select>
+                      ) : (
+                        <p>{order.status}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -105,7 +152,7 @@ const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
                     Total
                   </p>
                   <p className="font-bakery-noto mt-1 text-3xl font-bold text-black">
-                    ${order.total}
+                    ${Number(order.total).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -115,9 +162,9 @@ const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
                   Order Items
                 </p>
                 <div className="flex flex-col gap-4">
-                  {order.items.map((item) => (
+                  {order.items?.map((item, index) => (
                     <div
-                      key={item.id}
+                      key={`${item.id}-${index}`}
                       className="border-bakery-gray flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
                     >
                       <div className="flex items-center gap-4">
