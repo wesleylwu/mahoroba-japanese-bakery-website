@@ -33,7 +33,7 @@ const MenuCard = ({ item, onClick }: MenuCardProps) => {
     >
       <div className="border-bakery-gray relative aspect-square overflow-hidden rounded-2xl border-2 bg-white">
         <Image
-          src={item.img}
+          src={item.img || "/placeholder.png"}
           alt={item.title}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -46,7 +46,7 @@ const MenuCard = ({ item, onClick }: MenuCardProps) => {
             {item.title}
           </p>
 
-          <p className="font-bakery-noto text-sm leading-relaxed text-black md:text-base">
+          <p className="font-bakery-noto line-clamp-2 text-sm leading-relaxed text-black md:text-base">
             {item.desc}
           </p>
 

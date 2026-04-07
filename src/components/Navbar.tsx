@@ -10,45 +10,20 @@ import { CgProfile } from "react-icons/cg";
 import { HiOutlineShoppingCart, HiMenuAlt3 } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import Logo from "@/public/Logo.svg";
-import Cart, { CartItemType } from "@/src/components/Cart";
-import StrawberryAnko from "@/public/menu/StrawberryAnko.webp";
-import Sunrise from "@/public/menu/Sunrise.webp";
+import Cart from "@/src/components/Cart";
 import { useSession } from "next-auth/react";
+import { useCartsStore } from "@/utils/store";
 
 const hoverScale = {
   whileHover: { scale: 1.05 },
   transition: { duration: 0.2 },
 };
 
-const MOCK_CART_ITEMS: CartItemType[] = [
-  {
-    id: "mock-1",
-    title: "Strawberry Anko",
-    description:
-      "Soft Japanese bread filled with sweet red bean paste and fresh strawberry flavor.",
-    price: "3.50",
-    category: "sweet",
-    image: StrawberryAnko,
-    quantity: 2,
-  },
-  {
-    id: "mock-2",
-    title: "Sunrise",
-    description:
-      "Classic Japanese melon pan with a crisp cookie crust and fluffy interior.",
-    price: "3.25",
-    category: "loaves & rolls",
-    image: Sunrise,
-    quantity: 1,
-  },
-];
-
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const [cartItems, setCartItems] = useState<CartItemType[]>(MOCK_CART_ITEMS);
-
+  const { totalItems } = useCartsStore();
   const pathname = usePathname();
   const { status } = useSession();
 
@@ -68,18 +43,6 @@ const Navbar = () => {
     }
     return true;
   });
-
-  const handleUpdateQuantity = (id: string, newQuantity: number) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item,
-      ),
-    );
-  };
-
-  const handleRemoveItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-  };
 
   return (
     <div className="font-bakery-quicksand sticky top-0 z-50 w-full bg-black text-white">
@@ -126,11 +89,16 @@ const Navbar = () => {
           <motion.div {...hoverScale}>
             <button
               onClick={() => setIsCartOpen(true)}
-              className={`flex cursor-pointer items-center transition-colors ${
+              className={`relative flex cursor-pointer items-center transition-colors ${
                 pathname === "/checkout" ? "text-bakery-red" : "text-white"
               }`}
             >
               <HiOutlineShoppingCart />
+              {totalItems > 0 && (
+                <span className="bg-bakery-red absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white">
+                  {totalItems}
+                </span>
+              )}
             </button>
           </motion.div>
         </div>
@@ -214,13 +182,18 @@ const Navbar = () => {
                       closeMenu();
                       setIsCartOpen(true);
                     }}
-                    className={`flex cursor-pointer items-center text-4xl transition-colors ${
+                    className={`relative flex cursor-pointer items-center text-4xl transition-colors ${
                       pathname === "/checkout"
                         ? "text-bakery-red"
                         : "text-white"
                     }`}
                   >
                     <HiOutlineShoppingCart />
+                    {totalItems > 0 && (
+                      <span className="bg-bakery-red absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full text-sm font-bold text-white">
+                        {totalItems}
+                      </span>
+                    )}
                   </button>
                 </motion.div>
               </motion.div>
@@ -229,13 +202,7 @@ const Navbar = () => {
         </motion.div>
       </div>
 
-      <Cart
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-      />
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 };

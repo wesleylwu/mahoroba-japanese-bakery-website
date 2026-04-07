@@ -4,19 +4,12 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { MenuItem } from "@/src/data/Products";
 import { HiOutlineTrash, HiOutlineX } from "react-icons/hi";
-
-export interface CartItemType extends MenuItem {
-  quantity: number;
-}
+import { useCartsStore } from "@/utils/store";
 
 interface CartProps {
   isOpen: boolean;
   onClose: () => void;
-  items: CartItemType[];
-  onUpdateQuantity: (id: string, newQuantity: number) => void;
-  onRemoveItem: (id: string) => void;
 }
 
 const overlayAnimation = {
@@ -32,14 +25,11 @@ const drawerAnimation = {
   transition: { type: "spring" as const, damping: 25, stiffness: 200 },
 };
 
-const Cart = ({
-  isOpen,
-  onClose,
-  items,
-  onUpdateQuantity,
-  onRemoveItem,
-}: CartProps) => {
+const Cart = ({ isOpen, onClose }: CartProps) => {
   const router = useRouter();
+
+  const { products, totalPrice, removeFromCart, updateQuantity } =
+    useCartsStore();
 
   useEffect(() => {
     if (isOpen) {
@@ -51,11 +41,6 @@ const Cart = ({
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
-
-  const subtotal = items.reduce(
-    (total, item) => total + parseFloat(item.price) * item.quantity,
-    0,
-  );
 
   const handleCheckout = () => {
     onClose();
@@ -89,20 +74,20 @@ const Cart = ({
             </div>
 
             <div className="flex flex-1 flex-col overflow-y-auto bg-white p-6">
-              {items.length === 0 ? (
+              {products.length === 0 ? (
                 <div className="font-bakery-noto flex flex-1 items-center justify-center text-lg text-black">
                   Your cart is currently empty.
                 </div>
               ) : (
                 <div className="flex flex-col">
-                  {items.map((item) => (
+                  {products.map((item) => (
                     <div
                       key={item.id}
                       className="border-bakery-gray flex items-center gap-4 border-b py-6 last:border-b-0"
                     >
                       <div className="border-bakery-gray relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border bg-white">
                         <Image
-                          src={item.image}
+                          src={item.img || "/placeholder.png"}
                           alt={item.title}
                           fill
                           className="object-cover"
@@ -121,7 +106,7 @@ const Cart = ({
                       <div className="border-bakery-gray flex h-10 shrink-0 items-center overflow-hidden rounded-full border-2">
                         {item.quantity === 1 ? (
                           <button
-                            onClick={() => onRemoveItem(item.id)}
+                            onClick={() => removeFromCart(item)}
                             className="hover:bg-bakery-gray/50 group flex h-full cursor-pointer items-center justify-center px-3 transition-colors"
                           >
                             <HiOutlineTrash
@@ -132,7 +117,7 @@ const Cart = ({
                         ) : (
                           <button
                             onClick={() =>
-                              onUpdateQuantity(item.id, item.quantity - 1)
+                              updateQuantity(item.id, item.quantity - 1)
                             }
                             className="hover:bg-bakery-gray/50 flex h-full cursor-pointer items-center justify-center px-3 text-lg text-black transition-colors"
                           >
@@ -146,7 +131,7 @@ const Cart = ({
 
                         <button
                           onClick={() =>
-                            onUpdateQuantity(
+                            updateQuantity(
                               item.id,
                               Math.min(100, item.quantity + 1),
                             )
@@ -168,12 +153,12 @@ const Cart = ({
                   Total:
                 </p>
                 <p className="text-2xl font-bold text-black">
-                  ${subtotal.toFixed(2)}
+                  ${totalPrice.toFixed(2)}
                 </p>
               </div>
               <button
                 onClick={handleCheckout}
-                disabled={items.length === 0}
+                disabled={products.length === 0}
                 className="bg-bakery-burgundy hover:bg-bakery-burgundy/90 w-full cursor-pointer rounded-full px-6 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Proceed to Checkout

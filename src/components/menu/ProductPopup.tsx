@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { ProductType } from "@/src/types/Type";
+import { useCartsStore } from "@/utils/store";
+import { toast } from "react-toastify";
 
 interface ProductPopupProps {
   item: ProductType | null;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (item: ProductType, quantity: number) => void;
+  onAddToCart?: (item: ProductType, quantity: number) => void;
 }
 
 const backdropAnimation = {
@@ -31,6 +33,7 @@ const ProductPopup = ({
   onAddToCart,
 }: ProductPopupProps) => {
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCartsStore();
 
   useEffect(() => {
     if (isOpen) {
@@ -48,10 +51,23 @@ const ProductPopup = ({
     onClose();
   };
 
-  if (!item) return null;
+  if (!isOpen || !item) return null;
 
   const handleAddToCartAction = () => {
-    onAddToCart(item, quantity);
+    addToCart({
+      id: item.id,
+      title: item.title,
+      img: item.img,
+      price: parseFloat(item.price),
+      quantity: quantity,
+    });
+
+    toast.success("Added to cart!");
+
+    if (onAddToCart) {
+      onAddToCart(item, quantity);
+    }
+
     handleClose();
   };
 
@@ -80,7 +96,7 @@ const ProductPopup = ({
 
             <div className="relative aspect-video max-h-[30vh] w-full shrink-0 -translate-y-1 overflow-hidden bg-white sm:aspect-square">
               <Image
-                src={item.img}
+                src={item.img || "/placeholder.png"}
                 alt={item.title}
                 fill
                 className="object-cover"

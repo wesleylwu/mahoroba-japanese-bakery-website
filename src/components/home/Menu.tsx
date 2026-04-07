@@ -63,7 +63,8 @@ const Menu = () => {
           <motion.div
             variants={containerVariants}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: true }}
             className="grid w-full grid-cols-2 items-start justify-items-center gap-12 px-4 md:grid-cols-4"
           >
             {menu.map((category) => (
