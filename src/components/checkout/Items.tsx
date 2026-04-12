@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import Image from "next/image";
+import { useCartsStore } from "@/utils/store";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -12,18 +13,15 @@ const fadeUp = {
 interface ItemsProps {
   tipAmount: number;
   subtotal: number;
+  isLoading: boolean;
 }
 
-const Items = ({ tipAmount, subtotal }: ItemsProps) => {
+const Items = ({ tipAmount, subtotal, isLoading }: ItemsProps) => {
+  const { products } = useCartsStore();
+
   const processingFee = subtotal * 0.035;
   const tax = subtotal * 0.0825;
   const finalTotal = subtotal + processingFee + tax + tipAmount;
-
-  const dummyItems = [
-    { id: 1, name: "Matcha Croissant", price: 6.5, quantity: 2 },
-    { id: 2, name: "Strawberry Shortcake", price: 8.5, quantity: 1 },
-    { id: 3, name: "Yuzu Tart", price: 7.0, quantity: 3 },
-  ];
 
   return (
     <motion.div {...fadeUp} className="sticky top-12 flex flex-col gap-8">
@@ -31,16 +29,19 @@ const Items = ({ tipAmount, subtotal }: ItemsProps) => {
         <p className="font-bakery-noto text-3xl font-bold text-black">Items</p>
 
         <div className="flex flex-col gap-4">
-          {dummyItems.map((item) => (
+          {products.map((item) => (
             <div key={item.id} className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-200">
-                  <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">
-                    <p>Img</p>
-                  </div>
+                  <Image
+                    src={item.img || "/placeholder.png"}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <div className="flex flex-col">
-                  <p className="text-lg font-bold text-black">{item.name}</p>
+                  <p className="text-lg font-bold text-black">{item.title}</p>
                   <p className="text-black opacity-60">Qty: {item.quantity}</p>
                 </div>
               </div>
@@ -81,8 +82,13 @@ const Items = ({ tipAmount, subtotal }: ItemsProps) => {
           </div>
         </div>
 
-        <button className="bg-bakery-olive hover:bg-opacity-90 mt-4 w-full cursor-pointer rounded-xl py-4 text-xl font-bold text-white shadow-lg transition-all">
-          <p>Place Order</p>
+        <button
+          type="submit"
+          form="payment-form"
+          disabled={isLoading}
+          className="bg-bakery-olive hover:bg-opacity-90 mt-4 w-full cursor-pointer rounded-xl py-4 text-xl font-bold text-white shadow-lg transition-all disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <p>{isLoading ? "Processing..." : "Place Order"}</p>
         </button>
       </div>
     </motion.div>

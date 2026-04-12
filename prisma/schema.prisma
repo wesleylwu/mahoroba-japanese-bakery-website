@@ -74,12 +74,20 @@ model Product {
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  createAt  DateTime @default(now())
-  price     Decimal
-  products  Json[]
-  status    String
-  intent_id String?  @unique
-  user      User     @relation(fields: [userEmail], references: [email])
-  userEmail String
+  id         String   @id @default(cuid())
+  createAt   DateTime @default(now())
+  price      Decimal
+  products   Json[]
+  status     String
+  intent_id  String?  @unique
+  user       User     @relation(fields: [userEmail], references: [email])
+  userEmail  String
+  pickupTime String?
+  firstName  String?
+  lastName   String?
+  phone      String?
+  subtotal   Decimal?
+  tax        Decimal?
+  tip        Decimal?
+  fee        Decimal?
 }

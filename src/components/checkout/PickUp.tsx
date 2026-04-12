@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import {
+  LinkAuthenticationElement,
+  PaymentElement,
+} from "@stripe/react-stripe-js";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -12,16 +16,62 @@ const fadeUp = {
 interface PickupProps {
   setTipAmount: (amount: number) => void;
   subtotal: number;
+  setPickupTime: (time: string) => void;
 }
 
-const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
+const generateTimeOptions = () => {
+  const times = [];
+  let currentHour = 8;
+  let currentMinute = 0;
+
+  while (currentHour < 13 || (currentHour === 13 && currentMinute === 0)) {
+    const period = currentHour >= 12 ? "PM" : "AM";
+    const displayHour = currentHour > 12 ? currentHour - 12 : currentHour;
+    const displayMinute = currentMinute.toString().padStart(2, "0");
+
+    times.push(`${displayHour}:${displayMinute} ${period}`);
+
+    currentMinute += 10;
+    if (currentMinute >= 60) {
+      currentMinute = 0;
+      currentHour += 1;
+    }
+  }
+  return times;
+};
+
+const generateDateOptions = () => {
+  const dates = [];
+  const today = new Date();
+
+  for (let i = 1; i <= 14; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+
+    if (i === 1) {
+      dates.push("Tomorrow");
+    } else {
+      const options: Intl.DateTimeFormatOptions = {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      };
+      dates.push(date.toLocaleDateString("en-US", options));
+    }
+  }
+  return dates;
+};
+
+const Pickup = ({ setTipAmount, subtotal, setPickupTime }: PickupProps) => {
   const [orderTime, setOrderTime] = useState<"asap" | "later">("asap");
   const [selectedTip, setSelectedTip] = useState<number | "custom">(0);
   const [customTip, setCustomTip] = useState("");
 
-  const [cardNumber, setCardNumber] = useState("");
-  const [expDate, setExpDate] = useState("");
-  const [cvv, setCvv] = useState("");
+  const timeOptions = generateTimeOptions();
+  const dateOptions = generateDateOptions();
+
+  const [selectedDate, setSelectedDate] = useState(dateOptions[0]);
+  const [selectedTime, setSelectedTime] = useState(timeOptions[0]);
 
   const tipPercentages = [10, 15, 18, 20];
 
@@ -33,36 +83,18 @@ const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
     }
   }, [selectedTip, customTip, subtotal, setTipAmount]);
 
+  useEffect(() => {
+    if (orderTime === "asap") {
+      setPickupTime("ASAP");
+    } else {
+      setPickupTime(`${selectedDate} at ${selectedTime}`);
+    }
+  }, [orderTime, selectedDate, selectedTime, setPickupTime]);
+
   const handleCustomTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (Number(val) < 0) return;
     setCustomTip(val);
-  };
-
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "");
-    setCardNumber(val.slice(0, 16));
-  };
-
-  const handleExpDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value.replace(/\D/g, "");
-    if (val.length >= 2) {
-      const month = parseInt(val.slice(0, 2), 10);
-      if (month > 12) {
-        val = "12" + val.slice(2);
-      } else if (month === 0 && val.length >= 2) {
-        val = "01" + val.slice(2);
-      }
-    }
-    if (val.length > 2) {
-      val = val.slice(0, 2) + "/" + val.slice(2, 4);
-    }
-    setExpDate(val);
-  };
-
-  const handleCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "");
-    setCvv(val.slice(0, 4));
   };
 
   return (
@@ -89,7 +121,7 @@ const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
                 value="asap"
                 checked={orderTime === "asap"}
                 readOnly
-                className="accent-bakery-olive h-5 w-5"
+                className="accent-bakery-olive h-5 w-5 cursor-pointer"
               />
               <p>ASAP</p>
             </div>
@@ -103,7 +135,7 @@ const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
                 value="later"
                 checked={orderTime === "later"}
                 readOnly
-                className="accent-bakery-olive h-5 w-5"
+                className="accent-bakery-olive h-5 w-5 cursor-pointer"
               />
               <p>Later</p>
             </div>
@@ -111,113 +143,30 @@ const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
 
           {orderTime === "later" && (
             <div className="mt-2 grid grid-cols-2 gap-4">
-              <select className="border-bakery-gray appearance-none rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none">
-                <option>Today</option>
-                <option>Tomorrow</option>
+              <select
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="border-bakery-gray cursor-pointer appearance-none rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
+              >
+                {dateOptions.map((date, index) => (
+                  <option key={index} value={date}>
+                    {date}
+                  </option>
+                ))}
               </select>
-              <select className="border-bakery-gray appearance-none rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none">
-                <option>10:00 AM</option>
-                <option>10:30 AM</option>
-                <option>11:00 AM</option>
+              <select
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+                className="border-bakery-gray cursor-pointer appearance-none rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
+              >
+                {timeOptions.map((time, index) => (
+                  <option key={index} value={time}>
+                    {time}
+                  </option>
+                ))}
               </select>
             </div>
           )}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-6">
-        <p className="font-bakery-noto text-2xl font-bold text-black">
-          Payment
-        </p>
-
-        <div className="flex flex-col gap-3">
-          <input
-            type="text"
-            placeholder="Card Number"
-            value={cardNumber}
-            onChange={handleCardNumberChange}
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="MM/YY"
-            value={expDate}
-            onChange={handleExpDateChange}
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-          <input
-            type="text"
-            placeholder="Security Code"
-            value={cvv}
-            onChange={handleCvvChange}
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <input
-            type="text"
-            placeholder="Name on Card"
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-6">
-        <p className="font-bakery-noto text-2xl font-bold text-black">
-          Billing Address
-        </p>
-
-        <select className="border-bakery-gray appearance-none rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none">
-          <option>United States</option>
-          <option>Canada</option>
-        </select>
-
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            placeholder="First Name"
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-          <input
-            type="text"
-            placeholder="Last Name"
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-        </div>
-
-        <input
-          type="text"
-          placeholder="Address"
-          className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-        />
-
-        <input
-          type="text"
-          placeholder="Apt, suite, etc. (optional)"
-          className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-        />
-
-        <div className="grid grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="City"
-            defaultValue="West Sacramento"
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-          <input
-            type="text"
-            placeholder="State"
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
-          <input
-            type="text"
-            placeholder="ZIP Code"
-            className="border-bakery-gray rounded-xl border-2 bg-white px-4 py-4 text-lg text-black outline-none"
-          />
         </div>
       </div>
 
@@ -228,8 +177,9 @@ const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
           {tipPercentages.map((percent) => (
             <button
               key={percent}
+              type="button"
               onClick={() => setSelectedTip(percent)}
-              className={`rounded-xl border-2 py-3 text-lg font-bold transition-all ${
+              className={`cursor-pointer rounded-xl border-2 py-3 text-lg font-bold transition-all ${
                 selectedTip === percent
                   ? "bg-bakery-olive border-bakery-olive text-white"
                   : "border-bakery-gray hover:border-bakery-olive bg-white text-black"
@@ -239,8 +189,9 @@ const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
             </button>
           ))}
           <button
+            type="button"
             onClick={() => setSelectedTip("custom")}
-            className={`rounded-xl border-2 py-3 text-lg font-bold transition-all ${
+            className={`cursor-pointer rounded-xl border-2 py-3 text-lg font-bold transition-all ${
               selectedTip === "custom"
                 ? "bg-bakery-olive border-bakery-olive text-white"
                 : "border-bakery-gray hover:border-bakery-olive bg-white text-black"
@@ -262,6 +213,15 @@ const Pickup = ({ setTipAmount, subtotal }: PickupProps) => {
             />
           </div>
         )}
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <p className="font-bakery-noto text-2xl font-bold text-black">
+          Payment
+        </p>
+
+        <LinkAuthenticationElement id="link-authentication-element" />
+        <PaymentElement id="payment-element" options={{ layout: "tabs" }} />
       </div>
     </motion.div>
   );

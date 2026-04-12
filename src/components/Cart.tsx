@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { HiOutlineTrash, HiOutlineX } from "react-icons/hi";
 import { useCartsStore } from "@/utils/store";
+import { useSession } from "next-auth/react";
 
 interface CartProps {
   isOpen: boolean;
@@ -27,9 +28,9 @@ const drawerAnimation = {
 
 const Cart = ({ isOpen, onClose }: CartProps) => {
   const router = useRouter();
-
   const { products, totalPrice, removeFromCart, updateQuantity } =
     useCartsStore();
+  const { data: session } = useSession();
 
   useEffect(() => {
     if (isOpen) {
@@ -42,9 +43,36 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
     };
   }, [isOpen]);
 
-  const handleCheckout = () => {
-    onClose();
-    router.push("/checkout");
+  const handleCheckout = async () => {
+    if (!session) {
+      onClose();
+      router.push("/");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          price: totalPrice,
+          products,
+          status: "Not Paid!",
+          userEmail: session.user.email,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.id) {
+        onClose();
+        router.push(`/pay/${data.id}`);
+      } else {
+        console.error(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) => {
-  const { id } = params;
+  const { id } = await context.params;
 
   try {
     const product = await prisma.product.findUnique({
@@ -15,6 +15,32 @@ export const GET = async (
     });
 
     return new NextResponse(JSON.stringify(product), { status: 200 });
+  } catch (err) {
+    console.log(err);
+    return new NextResponse(
+      JSON.stringify({ message: "Something went wrong!" }),
+      { status: 500 },
+    );
+  }
+};
+
+export const DELETE = async (
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) => {
+  const { id } = await context.params;
+
+  try {
+    await prisma.product.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return new NextResponse(
+      JSON.stringify({ message: "Product has been deleted!" }),
+      { status: 200 },
+    );
   } catch (err) {
     console.log(err);
     return new NextResponse(

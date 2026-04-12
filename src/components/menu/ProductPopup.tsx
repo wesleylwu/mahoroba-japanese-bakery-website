@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ProductType } from "@/src/types/Type";
 import { useCartsStore } from "@/utils/store";
 import { toast } from "react-toastify";
+import DeleteButton from "@/src/components/DeleteButton";
 
 interface ProductPopupProps {
   item: ProductType | null;
@@ -93,6 +94,8 @@ const ProductPopup = ({
             >
               ✕
             </button>
+
+            <DeleteButton id={item.id} className="absolute top-4 left-4 z-20" />
 
             <div className="relative aspect-video max-h-[30vh] w-full shrink-0 -translate-y-1 overflow-hidden bg-white sm:aspect-square">
               <Image

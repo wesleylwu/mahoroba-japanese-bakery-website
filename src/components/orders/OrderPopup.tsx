@@ -18,6 +18,13 @@ export interface Order {
   total: string;
   status: "Preparing" | "Ready" | "Picked Up" | "Canceled";
   items: OrderItem[];
+  customerName?: string;
+  phone?: string;
+  pickupTime?: string;
+  subtotal?: string;
+  tax?: string;
+  tip?: string;
+  fee?: string;
 }
 
 interface OrderPopupProps {
@@ -106,12 +113,32 @@ const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
               <div className="border-bakery-gray bg-bakery-gray/10 flex flex-col gap-6 border-b p-6 md:w-1/3 md:border-r md:border-b-0 md:p-8">
                 <div>
                   <p className="text-sm font-bold tracking-wider text-black/50 uppercase">
-                    Date
+                    Order Date
                   </p>
                   <p className="mt-1 text-lg font-bold text-black">
                     {order.date}
                   </p>
                 </div>
+
+                <div>
+                  <p className="text-sm font-bold tracking-wider text-black/50 uppercase">
+                    Pickup Time
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-black">
+                    {order.pickupTime || "ASAP"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold tracking-wider text-black/50 uppercase">
+                    Customer Info
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-black">
+                    {order.customerName || "N/A"}
+                  </p>
+                  <p className="text-md text-black">{order.phone || "N/A"}</p>
+                </div>
+
                 <div>
                   <p className="text-sm font-bold tracking-wider text-black/50 uppercase">
                     Status
@@ -147,14 +174,6 @@ const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
                     </div>
                   </div>
                 </div>
-                <div className="mt-auto pt-6">
-                  <p className="text-sm font-bold tracking-wider text-black/50 uppercase">
-                    Total
-                  </p>
-                  <p className="font-bakery-noto mt-1 text-3xl font-bold text-black">
-                    ${Number(order.total).toFixed(2)}
-                  </p>
-                </div>
               </div>
 
               <div className="flex flex-col p-6 md:w-2/3 md:p-8">
@@ -180,6 +199,37 @@ const OrderPopup = ({ order, onClose }: OrderPopupProps) => {
                       </p>
                     </div>
                   ))}
+                </div>
+
+                <div className="mt-auto pt-8">
+                  <p className="font-bakery-noto mb-4 text-xl font-bold text-black">
+                    Payment Summary
+                  </p>
+                  <div className="text-md flex flex-col gap-2 text-black">
+                    <div className="flex justify-between">
+                      <p>Subtotal</p>
+                      <p>${Number(order.subtotal || 0).toFixed(2)}</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p>Tax</p>
+                      <p>${Number(order.tax || 0).toFixed(2)}</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p>Tip</p>
+                      <p>${Number(order.tip || 0).toFixed(2)}</p>
+                    </div>
+                    <div className="flex justify-between">
+                      <p>Processing Fee</p>
+                      <p>${Number(order.fee || 0).toFixed(2)}</p>
+                    </div>
+
+                    <div className="bg-bakery-gray my-2 h-px w-full" />
+
+                    <div className="flex justify-between text-2xl font-bold">
+                      <p>Total</p>
+                      <p>${Number(order.total).toFixed(2)}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -18,6 +18,14 @@ interface RawOrder {
   status: "Preparing" | "Ready" | "Picked Up" | "Canceled";
   intent_id: string | null;
   userEmail: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  pickupTime?: string;
+  subtotal?: string;
+  tax?: string;
+  tip?: string;
+  fee?: string;
 }
 
 const OrdersPage = () => {
@@ -50,12 +58,25 @@ const OrdersPage = () => {
           },
         );
 
+        let customerName = "";
+        if (order.firstName || order.lastName) {
+          customerName =
+            `${order.firstName || ""} ${order.lastName || ""}`.trim();
+        }
+
         return {
           id: order.id,
           date: formattedDate.replace(",", " -"),
           total: String(order.price),
           status: order.status,
           items: order.products || [],
+          customerName: customerName,
+          phone: order.phone,
+          pickupTime: order.pickupTime,
+          subtotal: order.subtotal,
+          tax: order.tax,
+          tip: order.tip,
+          fee: order.fee,
         };
       });
     },

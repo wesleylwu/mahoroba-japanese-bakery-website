@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, Variants } from "motion/react";
 import { ProductType } from "@/src/types/Type";
+import DeleteButton from "../DeleteButton";
 
 interface MenuCardProps {
   item: ProductType;
@@ -38,6 +39,7 @@ const MenuCard = ({ item, onClick }: MenuCardProps) => {
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        <DeleteButton id={item.id} className="absolute top-3 right-3 z-20" />
       </div>
 
       <div className="flex flex-col gap-3 px-1">

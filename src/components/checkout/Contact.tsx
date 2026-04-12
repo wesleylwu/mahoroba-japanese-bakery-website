@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "motion/react";
 
 const fadeUp = {
@@ -9,14 +8,24 @@ const fadeUp = {
   transition: { duration: 0.5, ease: "easeOut" as const },
 };
 
-const Contact = () => {
-  const [contact, setContact] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
-  });
+interface ContactProps {
+  contact: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+  };
+  setContact: React.Dispatch<
+    React.SetStateAction<{
+      firstName: string;
+      lastName: string;
+      phone: string;
+      email: string;
+    }>
+  >;
+}
 
+const Contact = ({ contact, setContact }: ContactProps) => {
   return (
     <motion.div {...fadeUp} className="flex flex-col gap-6">
       <p className="font-bakery-noto text-3xl font-bold text-black">Contact</p>
