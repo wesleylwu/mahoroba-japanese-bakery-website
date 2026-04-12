@@ -5,6 +5,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import CheckoutPage from "@/src/components/checkout/CheckoutPage";
+import Header from "@/src/components/Header";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
@@ -20,16 +21,13 @@ const PayPage = () => {
 
     const makeRequest = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/api/create-intent/${id}`,
-          {
-            method: "POST",
-          },
-        );
+        const res = await fetch(`/api/create-intent/${id}`, {
+          method: "POST",
+        });
         const data = await res.json();
         setClientSecret(data.clientSecret);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
@@ -45,13 +43,18 @@ const PayPage = () => {
 
   return (
     <div className="bg-bakery-cream min-h-screen">
+      <Header>
+        Checkout
+        <br />
+        チェックアウト
+      </Header>
+
       {clientSecret ? (
         <Elements options={options} stripe={stripePromise}>
           <CheckoutPage />
         </Elements>
       ) : (
-        // Optional: A little loading state so the screen isn't blank while Stripe loads
-        <div className="flex h-screen items-center justify-center text-xl font-bold">
+        <div className="flex h-64 items-center justify-center text-xl font-bold">
           Loading secure checkout...
         </div>
       )}
