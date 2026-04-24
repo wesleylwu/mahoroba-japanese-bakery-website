@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Quicksand:wght@400;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-bakery-burgundy: #461e20;
+  --color-bakery-olive: #3e442b;
+  --color-bakery-cream: #fff8f0;
+  --color-bakery-red: #9e2a2b;
+  --color-bakery-gray: #e5e7eb;
+
+  --font-bakery-noto: "Noto Sans JP", sans-serif;
+  --font-bakery-quicksand: "Quicksand", sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bakery-cream);
+  }
+
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+  }
+}
