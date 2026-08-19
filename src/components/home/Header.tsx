@@ -18,18 +18,26 @@ const itemVariants: Variants = {
 const Header = () => {
   return (
     <>
-      <div className="bg-bakery-burgundy h-2 w-screen" />
+      <div className="bg-bakery-burgundy h-1.5 w-screen" />
 
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="bg-bakery-cream font-bakery-noto text-bakery-burgundy flex flex-col items-center justify-center p-10 text-center text-2xl leading-normal font-bold tracking-wide sm:text-3xl md:text-4xl md:leading-relaxed md:tracking-wider lg:text-5xl xl:text-6xl xl:leading-loose xl:tracking-widest 2xl:text-7xl"
+        className="bg-bakery-cream font-bakery-noto text-bakery-burgundy flex flex-col items-center justify-center px-6 py-10 text-center sm:py-14"
       >
-        <motion.span variants={itemVariants}>
+        <motion.span
+          variants={itemVariants}
+          className="text-2xl font-bold tracking-wider sm:text-3xl md:text-4xl"
+        >
           Mahoroba Japanese Bakery
         </motion.span>
-        <motion.span variants={itemVariants}>まほろばベーカリー</motion.span>
+        <motion.span
+          variants={itemVariants}
+          className="mt-2 text-sm font-normal tracking-widest text-black/60 sm:text-base md:text-lg"
+        >
+          まほろばベーカリー
+        </motion.span>
       </motion.div>
     </>
   );

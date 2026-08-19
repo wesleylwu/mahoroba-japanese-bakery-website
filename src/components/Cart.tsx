@@ -33,15 +33,23 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
   const { data: session } = useSession();
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
     } else {
       document.body.style.overflow = "unset";
     }
     return () => {
       document.body.style.overflow = "unset";
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   const handleCheckout = async () => {
     if (!session) {
@@ -113,12 +121,12 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                       key={item.id}
                       className="border-bakery-gray flex items-center gap-4 border-b py-6 last:border-b-0"
                     >
-                      <div className="border-bakery-gray relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border bg-white">
+                      <div className="border-bakery-gray/60 relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border bg-white p-1">
                         <Image
                           src={item.img || "/placeholder.png"}
                           alt={item.title}
                           fill
-                          className="object-cover"
+                          className="object-contain"
                         />
                       </div>
 

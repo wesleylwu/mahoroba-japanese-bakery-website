@@ -10,7 +10,7 @@ const INITIAL_STATE = {
 
 export const useCartsStore = create(
   persist<CartType & ActionTypes>(
-    (set, get) => ({
+    (set) => ({
       products: INITIAL_STATE.products,
       totalItems: INITIAL_STATE.totalItems,
       totalPrice: INITIAL_STATE.totalPrice,
@@ -62,6 +62,14 @@ export const useCartsStore = create(
             totalItems: state.totalItems + quantityDifference,
             totalPrice: state.totalPrice + item.price * quantityDifference,
           };
+        });
+      },
+
+      clearCart() {
+        set({
+          products: [],
+          totalItems: 0,
+          totalPrice: 0,
         });
       },
     }),

@@ -1,10 +1,36 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthSession } from "@/utils/auth";
+
+export const dynamic = "force-dynamic";
 
 export const GET = async () => {
   try {
+    const session = await getAuthSession();
+
+    if (!session || !session.user?.email) {
+      return new NextResponse(
+        JSON.stringify({ message: "Not Authenticated!" }),
+        { status: 401 },
+      );
+    }
+
+    const whereClause: Prisma.OrderWhereInput = {
+      status: {
+        not: "Not Paid!",
+      },
+    };
+
+    if (!session.user.isAdmin) {
+      whereClause.userEmail = {
+        equals: session.user.email,
+        mode: "insensitive",
+      };
+    }
+
     const orders = await prisma.order.findMany({
+      where: whereClause,
       orderBy: { createAt: "desc" },
     });
 
@@ -65,6 +91,7 @@ export const PUT = async (req: NextRequest) => {
       tax,
       fee,
       subtotal,
+      price,
     } = body;
 
     const dataToUpdate: Prisma.OrderUpdateInput = {};
@@ -78,6 +105,7 @@ export const PUT = async (req: NextRequest) => {
     if (tax) dataToUpdate.tax = new Prisma.Decimal(tax);
     if (fee) dataToUpdate.fee = new Prisma.Decimal(fee);
     if (subtotal) dataToUpdate.subtotal = new Prisma.Decimal(subtotal);
+    if (price) dataToUpdate.price = new Prisma.Decimal(price);
 
     await prisma.order.update({
       where: {

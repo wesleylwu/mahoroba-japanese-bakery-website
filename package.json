@@ -49,5 +49,8 @@
   },
   "overrides": {
     "@types/pg": "$@types/pg"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

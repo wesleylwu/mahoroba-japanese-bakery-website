@@ -1,12 +1,31 @@
 import MenuEntry from "@/src/components/menu/MenuEntry";
 import Header from "@/src/components/Header";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 const Menu = async () => {
-  const res = await fetch("http://localhost:3000/api/products", {
-    cache: "no-store",
-  });
+  let serializedProducts: {
+    id: string;
+    title: string;
+    desc: string;
+    price: string;
+    img: string;
+    catSlug: string;
+  }[] = [];
 
-  const products = await res.json();
+  try {
+    const products = await prisma.product.findMany({
+      orderBy: { title: "asc" },
+    });
+
+    serializedProducts = products.map((p) => ({
+      ...p,
+      price: p.price.toString(),
+    }));
+  } catch (err) {
+    console.error("Failed to load products from database:", err);
+  }
 
   return (
     <>
@@ -16,7 +35,7 @@ const Menu = async () => {
         お品書き
       </Header>
 
-      <MenuEntry items={products} activeCategory="all" />
+      <MenuEntry items={serializedProducts} activeCategory="all" />
     </>
   );
 };
