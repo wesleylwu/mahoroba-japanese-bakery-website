@@ -69,7 +69,7 @@ const Information = () => {
 
       <motion.div
         {...slideUpDelayed}
-        className="border-bakery-gray mx-auto mt-8 h-[350px] w-full max-w-6xl overflow-hidden rounded-3xl border-2 shadow-lg md:mt-10 md:h-[450px]"
+        className="border-bakery-gray mx-auto mt-8 h-87.5 w-full max-w-6xl overflow-hidden rounded-3xl border-2 shadow-lg md:mt-10 md:h-112.5"
       >
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3121.240378411082!2d-121.50394338466655!3d38.53488247962846!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x809ad0c123456789%3A0x123456789abcdef!2s4900%20Freeport%20Blvd%2C%20Sacramento%2C%20CA%2095822!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
