@@ -18,52 +18,48 @@ const itemVariants: Variants = {
 
 const OurStory = () => {
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      className="bg-bakery-cream font-bakery-noto flex flex-col items-center gap-8 p-8 sm:p-10 md:p-12 lg:flex-row-reverse lg:p-16 xl:p-20"
-    >
-      <motion.p
-        variants={itemVariants}
-        className="text-bakery-burgundy translate-y-10 text-2xl font-bold tracking-wide sm:text-3xl lg:hidden"
-      >
-        Our Story
-      </motion.p>
-
+    <div className="bg-bakery-cream font-bakery-noto border-bakery-gray/60 border-t px-4 py-12 md:py-16">
       <motion.div
-        variants={itemVariants}
-        className="flex w-full items-center justify-center sm:ml-10 lg:w-1/2"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        className="mx-auto flex max-w-6xl flex-col items-center gap-10 lg:flex-row-reverse lg:gap-16"
       >
-        <Image
-          src={Baker}
-          alt="Mahoroba Baker Narusuke Monguchi"
-          className="ml-16 sm:ml-20 lg:ml-0"
-        />
-      </motion.div>
+        <motion.div
+          variants={itemVariants}
+          className="flex w-full items-center justify-center text-center lg:w-1/2"
+        >
+          <Image
+            src={Baker}
+            alt="Mahoroba Baker Narusuke Monguchi"
+            className="mx-auto block h-auto max-w-full rounded-2xl"
+          />
+        </motion.div>
 
-      <div className="ml-4 flex w-full flex-col items-center justify-center gap-6 text-center lg:ml-28 lg:w-1/2 lg:items-start lg:gap-8 lg:text-left xl:ml-32 2xl:ml-36">
-        <motion.p
-          variants={itemVariants}
-          className="text-bakery-burgundy hidden text-3xl font-bold tracking-wide lg:block lg:text-4xl xl:text-5xl 2xl:text-6xl"
-        >
-          Our Story
-        </motion.p>
-        <motion.p
-          variants={itemVariants}
-          className="w-full text-xs leading-relaxed tracking-wider sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl 2xl:leading-loose"
-        >
-          The bakery was opened in 2009 by owner and baker Narusuke Monguchi.
-          When choosing where to open his bakery, Monguchi liked that Sacramento
-          sounded similar to “sakura,” the Japanese word for cherry blossom,
-          which made the city feel like the perfect place to start. The name
-          “Mahoroba” comes from an ancient Japanese word meaning “a wonderful or
-          peaceful place,” reflecting the bakery’s goal of creating a welcoming
-          space filled with warm bread and good memories.
-        </motion.p>
-      </div>
-    </motion.div>
+        <div className="flex w-full flex-col items-center text-center lg:w-1/2 lg:items-start lg:text-left">
+          <motion.h2
+            variants={itemVariants}
+            className="text-bakery-burgundy mb-4 text-2xl font-bold tracking-wide sm:text-3xl md:text-4xl"
+          >
+            Our Story
+          </motion.h2>
+
+          <motion.p
+            variants={itemVariants}
+            className="text-sm leading-relaxed text-black/80 sm:text-base md:text-lg md:leading-loose"
+          >
+            The bakery was opened in 2009 by owner and baker Narusuke Monguchi.
+            When choosing where to open his bakery, Monguchi liked that
+            Sacramento sounded similar to “sakura,” the Japanese word for cherry
+            blossom, which made the city feel like the perfect place to start.
+            The name “Mahoroba” comes from an ancient Japanese word meaning “a
+            wonderful or peaceful place,” reflecting the bakery’s goal of
+            creating a welcoming space filled with warm bread and good memories.
+          </motion.p>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 

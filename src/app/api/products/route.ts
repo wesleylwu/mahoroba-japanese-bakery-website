@@ -10,6 +10,9 @@ export const GET = async (req: NextRequest) => {
       where: {
         catSlug: cat || undefined,
       },
+      orderBy: {
+        title: "asc",
+      },
     });
 
     return new NextResponse(JSON.stringify(products), { status: 200 });
@@ -22,6 +25,18 @@ export const GET = async (req: NextRequest) => {
   }
 };
 
-export const POST = async () => {
-  return new NextResponse("Hello", { status: 200 });
+export const POST = async (req: NextRequest) => {
+  try {
+    const body = await req.json();
+    const product = await prisma.product.create({
+      data: body,
+    });
+    return new NextResponse(JSON.stringify(product), { status: 201 });
+  } catch (err) {
+    console.log(err);
+    return new NextResponse(
+      JSON.stringify({ message: "Something went wrong!" }),
+      { status: 500 },
+    );
+  }
 };

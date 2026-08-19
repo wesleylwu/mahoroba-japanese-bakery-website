@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-//FETCH ALL CATEGORIES
+export const dynamic = "force-dynamic";
+
 export const GET = async () => {
   try {
     const categories = await prisma.category.findMany();

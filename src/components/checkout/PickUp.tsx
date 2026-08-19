@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import {
-  LinkAuthenticationElement,
-  PaymentElement,
-} from "@stripe/react-stripe-js";
+import { PaymentElement } from "@stripe/react-stripe-js";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -215,13 +212,45 @@ const Pickup = ({ setTipAmount, subtotal, setPickupTime }: PickupProps) => {
         )}
       </div>
 
-      <div className="flex flex-col gap-6">
-        <p className="font-bakery-noto text-2xl font-bold text-black">
-          Payment
-        </p>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <p className="font-bakery-noto text-2xl font-bold text-black">
+            Payment
+          </p>
+          <span className="bg-bakery-olive/10 text-bakery-olive rounded-full px-3 py-1 text-xs font-bold uppercase">
+            Demo Mode
+          </span>
+        </div>
 
-        <LinkAuthenticationElement id="link-authentication-element" />
-        <PaymentElement id="payment-element" options={{ layout: "tabs" }} />
+        <div className="border-bakery-olive/30 bg-bakery-cream/80 text-bakery-burgundy flex flex-col gap-1 rounded-2xl border p-4 text-xs">
+          <p className="font-bold">💡 Test Credit Card Details:</p>
+          <p>
+            Card:{" "}
+            <code className="rounded bg-white px-1.5 py-0.5 font-mono font-bold">
+              4242 4242 4242 4242
+            </code>
+          </p>
+          <p>
+            MM/YY:{" "}
+            <span className="font-semibold">Any future date (e.g. 12/30)</span>{" "}
+            • CVC: <span className="font-semibold">123</span> • ZIP:{" "}
+            <span className="font-semibold">90210</span>
+          </p>
+        </div>
+
+        <PaymentElement
+          id="payment-element"
+          options={{
+            layout: "tabs",
+            terms: {
+              card: "never",
+            },
+            wallets: {
+              applePay: "never",
+              googlePay: "never",
+            },
+          }}
+        />
       </div>
     </motion.div>
   );

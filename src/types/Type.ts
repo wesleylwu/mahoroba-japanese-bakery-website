@@ -45,4 +45,5 @@ export type ActionTypes = {
   addToCart: (item: CartItemType) => void;
   removeFromCart: (item: CartItemType) => void;
   updateQuantity: (id: string, newQuantity: number) => void;
+  clearCart: () => void;
 };

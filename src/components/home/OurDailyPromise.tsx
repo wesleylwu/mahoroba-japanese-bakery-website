@@ -6,28 +6,28 @@ import AnpanmanTray from "@/public/home/ourDailyPromise/AnpanmanTray.webp";
 
 const OurDailyPromise = () => {
   return (
-    <div className="mx-auto flex min-h-[70vh] w-[90vw] items-center justify-center py-12 2xl:w-[70vw]">
+    <div className="mx-auto flex max-w-6xl items-center justify-center px-4 py-12 md:py-16">
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="bg-bakery-olive flex w-full flex-col items-center gap-10 rounded-3xl border-3 p-8 md:p-12 xl:flex-row xl:gap-16 2xl:p-16"
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="bg-bakery-olive flex w-full flex-col items-center gap-8 rounded-3xl p-8 shadow-xl md:p-12 lg:flex-row lg:gap-12"
       >
-        <div className="relative h-[40vh] w-full xl:h-[50vh] xl:w-1/2 2xl:h-[60vh]">
+        <div className="relative aspect-4/3 w-full shrink-0 overflow-hidden rounded-2xl lg:w-1/2">
           <Image
             src={AnpanmanTray}
             alt="Tray of Anpanman pastries"
             fill
-            className="object-contain"
+            className="object-cover"
           />
         </div>
 
-        <div className="font-bakery-noto flex w-full flex-col items-center justify-center text-center text-white xl:w-1/2 xl:items-start xl:text-left">
-          <p className="mb-8 text-3xl font-bold md:mb-12 md:text-4xl lg:text-5xl 2xl:text-6xl">
+        <div className="font-bakery-noto flex w-full flex-col items-center justify-center text-center text-white lg:w-1/2 lg:items-start lg:text-left">
+          <p className="mb-4 text-2xl font-bold tracking-wider md:text-3xl lg:text-4xl">
             Our Daily Promise
           </p>
-          <p className="text-xl leading-20 md:text-2xl md:leading-24 lg:text-3xl lg:leading-28 2xl:text-4xl 2xl:leading-32">
+          <p className="text-base leading-relaxed tracking-wider text-white/90 sm:text-lg md:text-xl md:leading-loose">
             Fresh from the oven,
             <br />
             Soft, pillowy, rich delights,

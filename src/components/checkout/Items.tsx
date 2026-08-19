@@ -32,12 +32,12 @@ const Items = ({ tipAmount, subtotal, isLoading }: ItemsProps) => {
           {products.map((item) => (
             <div key={item.id} className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-gray-200">
+                <div className="border-bakery-gray/60 relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border bg-white p-1">
                   <Image
                     src={item.img || "/placeholder.png"}
                     alt={item.title}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
                 <div className="flex flex-col">

@@ -13,32 +13,28 @@ interface FAQQuestion {
 }
 
 const cardAnimation = {
-  initial: { opacity: 0, y: 30, scale: 0.98 },
-  whileInView: { opacity: 1, y: 0, scale: 1 },
-  viewport: { once: true, margin: "-50px" },
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-30px" },
   transition: {
-    duration: 0.6,
-    type: "spring" as const,
-    bounce: 0.4,
+    duration: 0.5,
+    ease: "easeOut" as const,
   },
 };
 
 const FAQCard = ({ item }: { item: FAQQuestion }) => {
   return (
-    <motion.div
-      {...cardAnimation}
-      className="mx-auto w-[95vw] max-w-6xl sm:w-[90vw] md:w-[85vw] lg:w-[80vw] xl:w-[75vw] 2xl:w-[65vw]"
-    >
+    <motion.div {...cardAnimation} className="w-full">
       <AccordionItem
         value={`faq-${item.question}`}
-        className="overflow-hidden rounded-xl shadow-sm"
+        className="border-bakery-gray overflow-hidden rounded-2xl border-2 shadow-sm transition-shadow hover:shadow-md"
       >
-        <AccordionTrigger className="bg-bakery-olive font-bakery-noto px-6 py-5 text-left text-white">
-          <p className="text-sm font-semibold sm:text-base md:text-lg lg:text-xl xl:text-2xl">
+        <AccordionTrigger className="bg-bakery-olive font-bakery-noto px-6 py-4.5 text-left text-white transition-opacity hover:opacity-95">
+          <p className="text-sm font-bold sm:text-base md:text-lg">
             {item.question}
           </p>
         </AccordionTrigger>
-        <AccordionContent className="font-bakery-noto bg-white px-6 py-5 text-xs whitespace-pre-line text-black sm:text-sm md:text-base lg:text-lg">
+        <AccordionContent className="font-bakery-noto bg-white px-6 py-5 text-sm leading-relaxed whitespace-pre-line text-black/80 md:text-base">
           {item.answer}
         </AccordionContent>
       </AccordionItem>

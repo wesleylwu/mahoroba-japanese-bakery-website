@@ -25,6 +25,10 @@ const DeleteButton = ({ id, className }: DeleteButtonProps) => {
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
+    if (!window.confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+
     const res = await fetch(`/api/products/${id}`, {
       method: "DELETE",
     });

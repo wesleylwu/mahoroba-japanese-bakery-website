@@ -25,9 +25,9 @@ export async function POST(
 
   if (order) {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Number(order.price) * 100,
+      amount: Math.round(Number(order.price) * 100),
       currency: "usd",
-      automatic_payment_methods: { enabled: true },
+      payment_method_types: ["card"],
     });
 
     await prisma.order.update({

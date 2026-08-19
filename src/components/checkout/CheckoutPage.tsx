@@ -6,12 +6,16 @@ import Pickup from "@/src/components/checkout/PickUp";
 import Items from "@/src/components/checkout/Items";
 import { useElements, useStripe } from "@stripe/react-stripe-js";
 import { useCartsStore } from "@/utils/store";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { isValidPhoneNumber } from "@/utils/phone";
 
 const CheckoutPage = () => {
   const [tipAmount, setTipAmount] = useState(0);
-  const { totalPrice } = useCartsStore();
+  const { totalPrice, clearCart } = useCartsStore();
   const params = useParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const orderId = (params?.id || params?.orderId) as string;
 
   const [pickupTime, setPickupTime] = useState("ASAP");
@@ -26,6 +30,27 @@ const CheckoutPage = () => {
   const elements = useElements();
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        if (res.ok) {
+          const profile = await res.json();
+          setContact((prev) => ({
+            firstName: prev.firstName || profile.firstName || "",
+            lastName: prev.lastName || profile.lastName || "",
+            phone: prev.phone || profile.phone || "",
+            email: prev.email || profile.email || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to load user profile for checkout:", err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     if (!stripe) return;
@@ -59,7 +84,17 @@ const CheckoutPage = () => {
 
     if (!stripe || !elements || !orderId) return;
 
+    if (contact.phone && !isValidPhoneNumber(contact.phone)) {
+      setMessage("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
     setIsLoading(true);
+    setMessage(null);
+
+    const calculatedTax = totalPrice * 0.0825;
+    const calculatedFee = totalPrice * 0.035;
+    const finalPrice = totalPrice + calculatedTax + calculatedFee + tipAmount;
 
     try {
       await fetch("/api/orders", {
@@ -72,20 +107,22 @@ const CheckoutPage = () => {
           lastName: contact.lastName,
           phone: contact.phone,
           tip: String(tipAmount),
-          tax: String(totalPrice * 0.0825),
-          fee: String(totalPrice * 0.035),
+          tax: String(calculatedTax),
+          fee: String(calculatedFee),
           subtotal: String(totalPrice),
+          price: String(finalPrice),
         }),
       });
     } catch (err) {
       console.error(err);
     }
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: "http://localhost:3000/success",
+        return_url: `${window.location.origin}/success`,
       },
+      redirect: "if_required",
     });
 
     if (error) {
@@ -94,6 +131,29 @@ const CheckoutPage = () => {
       } else {
         setMessage("An unexpected error occurred.");
       }
+      setIsLoading(false);
+      return;
+    }
+
+    if (paymentIntent && paymentIntent.status === "succeeded") {
+      try {
+        await Promise.all([
+          fetch(`/api/confirm/${paymentIntent.id}`, { method: "PUT" }),
+          fetch(`/api/orders`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: orderId, status: "Preparing" }),
+          }),
+        ]);
+      } catch (err) {
+        console.error("Error updating order status:", err);
+      }
+
+      clearCart();
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      router.refresh();
+      router.push("/orders");
+      return;
     }
 
     setIsLoading(false);
