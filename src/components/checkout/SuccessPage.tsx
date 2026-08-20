@@ -4,16 +4,21 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useCartsStore } from "@/utils/store";
 import { useQueryClient } from "@tanstack/react-query";
+import { addGuestOrderId } from "@/utils/guestOrders";
 
 const SuccessPage = () => {
   const searchParams = useSearchParams();
   const payment_intent = searchParams.get("payment_intent");
+  const orderId = searchParams.get("order_id");
   const router = useRouter();
   const { clearCart } = useCartsStore();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     clearCart();
+    if (orderId) {
+      addGuestOrderId(orderId);
+    }
 
     const makeRequest = async () => {
       try {
@@ -34,7 +39,7 @@ const SuccessPage = () => {
     };
 
     makeRequest();
-  }, [payment_intent, router, clearCart, queryClient]);
+  }, [payment_intent, orderId, router, clearCart, queryClient]);
 
   return (
     <div className="font-bakery-noto flex min-h-[calc(100vh-12rem)] flex-col items-center justify-center p-6 text-center">

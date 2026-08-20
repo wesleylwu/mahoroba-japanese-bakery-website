@@ -11,7 +11,6 @@ import { HiOutlineShoppingCart, HiMenuAlt3 } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import Logo from "@/public/Logo.svg";
 import Cart from "@/src/components/Cart";
-import { useSession } from "next-auth/react";
 import { useCartsStore } from "@/utils/store";
 
 const hoverScale = {
@@ -25,7 +24,6 @@ const Navbar = () => {
 
   const { totalItems } = useCartsStore();
   const pathname = usePathname();
-  const { status } = useSession();
 
   const handleClick = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -36,9 +34,6 @@ const Navbar = () => {
       item.text === "cart" ||
       item.text === "contact"
     ) {
-      return false;
-    }
-    if (item.text === "orders" && status !== "authenticated") {
       return false;
     }
     return true;

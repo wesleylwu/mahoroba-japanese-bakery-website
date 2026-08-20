@@ -3,6 +3,8 @@
 import { motion } from "motion/react";
 import { formatPhoneNumber } from "@/utils/phone";
 
+import { useSession } from "next-auth/react";
+
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -27,14 +29,16 @@ interface ContactProps {
 }
 
 const Contact = ({ contact, setContact }: ContactProps) => {
+  const { data: session } = useSession();
+
   return (
     <motion.div {...fadeUp} className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <p className="font-bakery-noto text-2xl font-bold text-black md:text-3xl">
-          Contact
+          Contact Info
         </p>
         <span className="text-xs text-black/50">
-          Auto-filled from your profile
+          {session ? "Auto-filled from profile" : "Guest Checkout"}
         </span>
       </div>
 
