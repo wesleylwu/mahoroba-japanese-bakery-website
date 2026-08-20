@@ -52,12 +52,6 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
   }, [isOpen, onClose]);
 
   const handleCheckout = async () => {
-    if (!session) {
-      onClose();
-      router.push("/");
-      return;
-    }
-
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -66,7 +60,7 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
           price: totalPrice,
           products,
           status: "Not Paid!",
-          userEmail: session.user.email,
+          userEmail: session?.user?.email || null,
         }),
       });
 

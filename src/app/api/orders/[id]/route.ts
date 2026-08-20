@@ -1,19 +1,38 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async () => {
+export const GET = async (
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) => {
   try {
-    const orders = await prisma.order.findMany({
-      orderBy: {
-        createAt: "desc",
+    const { id } = await context.params;
+    const order = await prisma.order.findUnique({
+      where: {
+        id: id,
       },
     });
 
-    return new NextResponse(JSON.stringify(orders), { status: 200 });
+    if (!order) {
+      return new NextResponse(JSON.stringify({ message: "Order not found" }), {
+        status: 404,
+      });
+    }
+
+    const serializedOrder = {
+      ...order,
+      price: order.price.toString(),
+      subtotal: order.subtotal?.toString() || "0",
+      tax: order.tax?.toString() || "0",
+      tip: order.tip?.toString() || "0",
+      fee: order.fee?.toString() || "0",
+    };
+
+    return new NextResponse(JSON.stringify(serializedOrder), { status: 200 });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return new NextResponse(
-      JSON.stringify({ message: "Failed to fetch orders" }),
+      JSON.stringify({ message: "Failed to fetch order" }),
       { status: 500 },
     );
   }

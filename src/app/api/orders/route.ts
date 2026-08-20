@@ -5,28 +5,69 @@ import { getAuthSession } from "@/utils/auth";
 
 export const dynamic = "force-dynamic";
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
   try {
     const session = await getAuthSession();
+    const { searchParams } = new URL(req.url);
+    const idsParam = searchParams.get("ids");
+    const lookupId = searchParams.get("lookupId");
 
-    if (!session || !session.user?.email) {
-      return new NextResponse(
-        JSON.stringify({ message: "Not Authenticated!" }),
-        { status: 401 },
-      );
-    }
+    const idList = idsParam
+      ? idsParam
+          .split(",")
+          .map((id) => id.trim())
+          .filter(Boolean)
+      : [];
 
-    const whereClause: Prisma.OrderWhereInput = {
+    const baseStatusFilter = {
       status: {
         not: "Not Paid!",
       },
     };
 
-    if (!session.user.isAdmin) {
-      whereClause.userEmail = {
-        equals: session.user.email,
-        mode: "insensitive",
-      };
+    let whereClause: Prisma.OrderWhereInput = { ...baseStatusFilter };
+
+    if (session?.user?.isAdmin) {
+      if (lookupId) {
+        whereClause = { ...baseStatusFilter, id: lookupId };
+      }
+    } else if (session?.user?.email) {
+      const email = session.user.email;
+      if (lookupId) {
+        whereClause = {
+          ...baseStatusFilter,
+          id: lookupId,
+        };
+      } else if (idList.length > 0) {
+        whereClause = {
+          ...baseStatusFilter,
+          OR: [
+            { userEmail: { equals: email, mode: "insensitive" } },
+            { id: { in: idList } },
+          ],
+        };
+      } else {
+        whereClause = {
+          ...baseStatusFilter,
+          userEmail: { equals: email, mode: "insensitive" },
+        };
+      }
+    } else {
+      // Guest user (unauthenticated)
+      if (lookupId) {
+        whereClause = {
+          ...baseStatusFilter,
+          id: lookupId,
+        };
+      } else if (idList.length > 0) {
+        whereClause = {
+          ...baseStatusFilter,
+          id: { in: idList },
+        };
+      } else {
+        // No guest order IDs provided and no session -> return empty list
+        return new NextResponse(JSON.stringify([]), { status: 200 });
+      }
     }
 
     const orders = await prisma.order.findMany({
@@ -63,15 +104,17 @@ export const POST = async (req: NextRequest) => {
         price: new Prisma.Decimal(price),
         products,
         status,
-        userEmail,
+        userEmail: userEmail || null,
       },
     });
 
     return new NextResponse(JSON.stringify(newOrder), { status: 201 });
   } catch (err) {
-    console.error(err);
+    console.error("Error creating order:", err);
     return new NextResponse(
-      JSON.stringify({ message: "Something went wrong!" }),
+      JSON.stringify({
+        message: err instanceof Error ? err.message : "Something went wrong!",
+      }),
       { status: 500 },
     );
   }
@@ -87,6 +130,7 @@ export const PUT = async (req: NextRequest) => {
       firstName,
       lastName,
       phone,
+      userEmail,
       tip,
       tax,
       fee,
@@ -101,6 +145,7 @@ export const PUT = async (req: NextRequest) => {
     if (firstName) dataToUpdate.firstName = firstName;
     if (lastName) dataToUpdate.lastName = lastName;
     if (phone) dataToUpdate.phone = phone;
+    if (userEmail) dataToUpdate.userEmail = userEmail;
     if (tip) dataToUpdate.tip = new Prisma.Decimal(tip);
     if (tax) dataToUpdate.tax = new Prisma.Decimal(tax);
     if (fee) dataToUpdate.fee = new Prisma.Decimal(fee);
@@ -119,9 +164,11 @@ export const PUT = async (req: NextRequest) => {
       { status: 200 },
     );
   } catch (err) {
-    console.error(err);
+    console.error("Error updating order:", err);
     return new NextResponse(
-      JSON.stringify({ message: "Something went wrong!" }),
+      JSON.stringify({
+        message: err instanceof Error ? err.message : "Something went wrong!",
+      }),
       { status: 500 },
     );
   }

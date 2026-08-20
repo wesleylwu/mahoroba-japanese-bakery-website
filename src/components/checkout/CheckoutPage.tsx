@@ -9,6 +9,7 @@ import { useCartsStore } from "@/utils/store";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { isValidPhoneNumber } from "@/utils/phone";
+import { addGuestOrderId } from "@/utils/guestOrders";
 
 const CheckoutPage = () => {
   const [tipAmount, setTipAmount] = useState(0);
@@ -84,6 +85,19 @@ const CheckoutPage = () => {
 
     if (!stripe || !elements || !orderId) return;
 
+    if (!contact.firstName.trim()) {
+      setMessage("Please enter your first name for order pickup.");
+      return;
+    }
+
+    if (
+      !contact.email.trim() ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)
+    ) {
+      setMessage("Please enter a valid email address for order confirmation.");
+      return;
+    }
+
     if (contact.phone && !isValidPhoneNumber(contact.phone)) {
       setMessage("Please enter a valid 10-digit phone number.");
       return;
@@ -106,6 +120,7 @@ const CheckoutPage = () => {
           firstName: contact.firstName,
           lastName: contact.lastName,
           phone: contact.phone,
+          userEmail: contact.email,
           tip: String(tipAmount),
           tax: String(calculatedTax),
           fee: String(calculatedFee),
@@ -120,7 +135,7 @@ const CheckoutPage = () => {
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/success`,
+        return_url: `${window.location.origin}/success?order_id=${orderId}`,
       },
       redirect: "if_required",
     });
@@ -149,6 +164,7 @@ const CheckoutPage = () => {
         console.error("Error updating order status:", err);
       }
 
+      addGuestOrderId(orderId);
       clearCart();
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
       router.refresh();

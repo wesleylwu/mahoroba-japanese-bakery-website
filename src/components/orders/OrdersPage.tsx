@@ -1,14 +1,16 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useSession, signIn } from "next-auth/react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { HiOutlineSearch, HiOutlineShoppingBag } from "react-icons/hi";
 import OrderPopup, {
   Order as OrderType,
   OrderItem,
 } from "@/src/components/orders/OrderPopup";
+import { getGuestOrderIds, addGuestOrderId } from "@/utils/guestOrders";
 
 interface RawOrder {
   id: string;
@@ -17,7 +19,7 @@ interface RawOrder {
   products: OrderItem[];
   status: "Preparing" | "Ready" | "Picked Up" | "Canceled";
   intent_id: string | null;
-  userEmail: string;
+  userEmail?: string | null;
   firstName?: string;
   lastName?: string;
   phone?: string;
@@ -30,21 +32,32 @@ interface RawOrder {
 
 const OrdersPage = () => {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [guestOrderIds, setGuestOrderIds] = useState<string[]>([]);
+  const [searchOrderId, setSearchOrderId] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
+    setGuestOrderIds(getGuestOrderIds());
+
+    const handleUpdate = () => {
+      setGuestOrderIds(getGuestOrderIds());
+    };
+
+    window.addEventListener("guest_orders_updated", handleUpdate);
+    return () => {
+      window.removeEventListener("guest_orders_updated", handleUpdate);
+    };
+  }, []);
 
   const { isLoading, error, data } = useQuery({
-    queryKey: ["orders"],
+    queryKey: ["orders", guestOrderIds, session?.user?.email],
     queryFn: async () => {
-      const res = await fetch("/api/orders");
+      const idsParam =
+        guestOrderIds.length > 0 ? `?ids=${guestOrderIds.join(",")}` : "";
+      const res = await fetch(`/api/orders${idsParam}`);
       if (!res.ok) {
         return [];
       }
@@ -112,29 +125,35 @@ const OrdersPage = () => {
     return string.length > 40 ? `${string.substring(0, 40)}...` : string;
   };
 
-  if (status === "unauthenticated") {
-    return null;
-  }
+  const handleSearchOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchOrderId.trim();
+    if (!query) return;
 
-  if (isLoading || status === "loading") {
-    return (
-      <div className="bg-bakery-cream flex min-h-[60vh] w-full items-center justify-center">
-        <p className="font-bakery-noto text-lg font-bold text-black/60">
-          Loading orders...
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-bakery-cream flex min-h-[60vh] w-full items-center justify-center">
-        <p className="font-bakery-noto text-bakery-red text-lg font-bold">
-          Error loading orders.
-        </p>
-      </div>
-    );
-  }
+    setIsSearching(true);
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const foundOrder = await res.json();
+        if (foundOrder && foundOrder.id) {
+          addGuestOrderId(foundOrder.id);
+          setGuestOrderIds(getGuestOrderIds());
+          setSelectedOrderId(foundOrder.id);
+          setSearchOrderId("");
+          toast.success("Order found!");
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
+        } else {
+          toast.error("No order found with that ID.");
+        }
+      } else {
+        toast.error("No order found with that ID.");
+      }
+    } catch {
+      toast.error("Failed to search order.");
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const handleStatusChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -163,18 +182,88 @@ const OrdersPage = () => {
     }
   };
 
+  if (isLoading || status === "loading") {
+    return (
+      <div className="bg-bakery-cream flex min-h-[60vh] w-full items-center justify-center">
+        <p className="font-bakery-noto text-lg font-bold text-black/60">
+          Loading orders...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-bakery-cream flex min-h-[60vh] w-full items-center justify-center">
+        <p className="font-bakery-noto text-bakery-red text-lg font-bold">
+          Error loading orders.
+        </p>
+      </div>
+    );
+  }
+
+  const isGuest = status === "unauthenticated";
+
   return (
     <div className="bg-bakery-cream min-h-screen w-full px-4 py-8 md:px-8 md:py-12 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-xs text-black/60 md:text-sm">
-            Click any order to view full details and receipt
-          </p>
-          <span className="bg-bakery-burgundy/10 text-bakery-burgundy rounded-full px-3.5 py-1 text-xs font-bold">
-            {data?.length || 0} {data?.length === 1 ? "Order" : "Orders"}
-          </span>
+        {/* Guest Notification Banner */}
+        {isGuest && (
+          <div className="border-bakery-gray/70 mb-6 flex flex-col items-start justify-between gap-3 rounded-2xl border-2 bg-white p-4 sm:flex-row sm:items-center">
+            <div>
+              <p className="font-bakery-noto text-sm font-bold text-black">
+                Guest Mode
+              </p>
+              <p className="text-xs text-black/60">
+                Viewing recent orders placed on this device. Sign in to save and
+                access your orders anywhere.
+              </p>
+            </div>
+            <button
+              onClick={() => signIn("google")}
+              className="bg-bakery-burgundy hover:bg-bakery-burgundy/90 shrink-0 cursor-pointer rounded-full px-4 py-1.5 text-xs font-bold text-white shadow-sm transition-all"
+            >
+              Sign In
+            </button>
+          </div>
+        )}
+
+        {/* Header bar with Search by Order ID */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="bg-bakery-burgundy/10 text-bakery-burgundy rounded-full px-3.5 py-1 text-xs font-bold">
+              {data?.length || 0} {data?.length === 1 ? "Order" : "Orders"}
+            </span>
+            <p className="text-xs text-black/60 md:text-sm">
+              Click any order to view receipt
+            </p>
+          </div>
+
+          <form
+            onSubmit={handleSearchOrder}
+            className="flex max-w-md items-center gap-2"
+          >
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Look up Order ID..."
+                value={searchOrderId}
+                onChange={(e) => setSearchOrderId(e.target.value)}
+                className="border-bakery-gray focus:border-bakery-olive w-full rounded-full border-2 bg-white px-4 py-2 text-xs text-black transition-colors outline-none md:text-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isSearching || !searchOrderId.trim()}
+              className="bg-bakery-olive hover:bg-bakery-olive/90 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold text-white transition-colors disabled:opacity-50 md:text-sm"
+            >
+              <HiOutlineSearch size={16} />
+              {isSearching ? "Searching..." : "Find"}
+            </button>
+          </form>
         </div>
 
+        {/* Orders Table */}
         <div className="border-bakery-gray overflow-hidden rounded-2xl border-2 bg-white shadow-md">
           <div className="border-bakery-gray bg-bakery-cream/70 hidden border-b text-xs font-bold tracking-wider text-black/70 uppercase md:grid md:grid-cols-6">
             <div className="px-6 py-3.5">
@@ -242,8 +331,24 @@ const OrdersPage = () => {
             ))}
 
             {(!data || data.length === 0) && (
-              <div className="py-16 text-center text-sm text-black/50">
-                No orders placed yet.
+              <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+                <div className="bg-bakery-cream text-bakery-burgundy mb-4 flex h-14 w-14 items-center justify-center rounded-full">
+                  <HiOutlineShoppingBag size={28} />
+                </div>
+                <p className="font-bakery-noto text-base font-bold text-black md:text-lg">
+                  No orders found
+                </p>
+                <p className="mt-1 max-w-sm text-xs text-black/60 md:text-sm">
+                  {isGuest
+                    ? "You have not placed any orders on this device yet. If you have an order ID from your receipt, you can search for it above."
+                    : "You have not placed any orders yet."}
+                </p>
+                <Link
+                  href="/menu"
+                  className="bg-bakery-burgundy hover:bg-bakery-burgundy/90 mt-6 inline-flex items-center rounded-full px-6 py-2.5 text-sm font-bold text-white transition-colors"
+                >
+                  Browse Menu
+                </Link>
               </div>
             )}
           </div>
