@@ -162,7 +162,6 @@ const OrdersPage = () => {
   return (
     <div className="bg-bakery-cream min-h-screen w-full px-4 py-8 md:px-8 md:py-12 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        {/* Guest Notification Banner */}
         {isGuest && (
           <div className="border-bakery-gray/70 mb-6 flex flex-col items-start justify-between gap-3 rounded-2xl border-2 bg-white p-4 sm:flex-row sm:items-center">
             <div>
@@ -183,7 +182,6 @@ const OrdersPage = () => {
           </div>
         )}
 
-        {/* Header bar */}
         <div className="mb-4 flex items-center justify-between">
           <p className="text-xs text-black/60 md:text-sm">
             Click any order to view full details and receipt
@@ -193,7 +191,6 @@ const OrdersPage = () => {
           </span>
         </div>
 
-        {/* Orders Table */}
         <div className="border-bakery-gray overflow-hidden rounded-2xl border-2 bg-white shadow-md">
           <div className="border-bakery-gray bg-bakery-cream/70 hidden border-b text-xs font-bold tracking-wider text-black/70 uppercase md:grid md:grid-cols-6">
             <div className="px-6 py-3.5">

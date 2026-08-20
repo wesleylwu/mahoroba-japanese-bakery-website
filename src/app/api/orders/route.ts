@@ -45,14 +45,12 @@ export const GET = async (req: NextRequest) => {
         };
       }
     } else {
-      // Guest user (unauthenticated)
       if (idList.length > 0) {
         whereClause = {
           ...baseStatusFilter,
           id: { in: idList },
         };
       } else {
-        // No guest order IDs provided and no session -> return empty list
         return new NextResponse(JSON.stringify([]), { status: 200 });
       }
     }
