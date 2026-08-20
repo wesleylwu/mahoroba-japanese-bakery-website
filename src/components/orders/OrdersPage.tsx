@@ -3,14 +3,14 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession, signIn } from "next-auth/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { HiOutlineSearch, HiOutlineShoppingBag } from "react-icons/hi";
+import { HiOutlineShoppingBag } from "react-icons/hi";
 import OrderPopup, {
   Order as OrderType,
   OrderItem,
 } from "@/src/components/orders/OrderPopup";
-import { getGuestOrderIds, addGuestOrderId } from "@/utils/guestOrders";
+import { useGuestOrderIds } from "@/utils/guestOrders";
 
 interface RawOrder {
   id: string;
@@ -35,22 +35,7 @@ const OrdersPage = () => {
   const queryClient = useQueryClient();
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [guestOrderIds, setGuestOrderIds] = useState<string[]>([]);
-  const [searchOrderId, setSearchOrderId] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-
-  useEffect(() => {
-    setGuestOrderIds(getGuestOrderIds());
-
-    const handleUpdate = () => {
-      setGuestOrderIds(getGuestOrderIds());
-    };
-
-    window.addEventListener("guest_orders_updated", handleUpdate);
-    return () => {
-      window.removeEventListener("guest_orders_updated", handleUpdate);
-    };
-  }, []);
+  const guestOrderIds = useGuestOrderIds();
 
   const { isLoading, error, data } = useQuery({
     queryKey: ["orders", guestOrderIds, session?.user?.email],
@@ -123,36 +108,6 @@ const OrdersPage = () => {
       .map((item) => `${item.title} (${item.quantity})`)
       .join(", ");
     return string.length > 40 ? `${string.substring(0, 40)}...` : string;
-  };
-
-  const handleSearchOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const query = searchOrderId.trim();
-    if (!query) return;
-
-    setIsSearching(true);
-    try {
-      const res = await fetch(`/api/orders/${encodeURIComponent(query)}`);
-      if (res.ok) {
-        const foundOrder = await res.json();
-        if (foundOrder && foundOrder.id) {
-          addGuestOrderId(foundOrder.id);
-          setGuestOrderIds(getGuestOrderIds());
-          setSelectedOrderId(foundOrder.id);
-          setSearchOrderId("");
-          toast.success("Order found!");
-          queryClient.invalidateQueries({ queryKey: ["orders"] });
-        } else {
-          toast.error("No order found with that ID.");
-        }
-      } else {
-        toast.error("No order found with that ID.");
-      }
-    } catch {
-      toast.error("Failed to search order.");
-    } finally {
-      setIsSearching(false);
-    }
   };
 
   const handleStatusChange = async (
@@ -228,39 +183,14 @@ const OrdersPage = () => {
           </div>
         )}
 
-        {/* Header bar with Search by Order ID */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="bg-bakery-burgundy/10 text-bakery-burgundy rounded-full px-3.5 py-1 text-xs font-bold">
-              {data?.length || 0} {data?.length === 1 ? "Order" : "Orders"}
-            </span>
-            <p className="text-xs text-black/60 md:text-sm">
-              Click any order to view receipt
-            </p>
-          </div>
-
-          <form
-            onSubmit={handleSearchOrder}
-            className="flex max-w-md items-center gap-2"
-          >
-            <div className="relative flex-1">
-              <input
-                type="text"
-                placeholder="Look up Order ID..."
-                value={searchOrderId}
-                onChange={(e) => setSearchOrderId(e.target.value)}
-                className="border-bakery-gray focus:border-bakery-olive w-full rounded-full border-2 bg-white px-4 py-2 text-xs text-black transition-colors outline-none md:text-sm"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSearching || !searchOrderId.trim()}
-              className="bg-bakery-olive hover:bg-bakery-olive/90 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold text-white transition-colors disabled:opacity-50 md:text-sm"
-            >
-              <HiOutlineSearch size={16} />
-              {isSearching ? "Searching..." : "Find"}
-            </button>
-          </form>
+        {/* Header bar */}
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-xs text-black/60 md:text-sm">
+            Click any order to view full details and receipt
+          </p>
+          <span className="bg-bakery-burgundy/10 text-bakery-burgundy rounded-full px-3.5 py-1 text-xs font-bold">
+            {data?.length || 0} {data?.length === 1 ? "Order" : "Orders"}
+          </span>
         </div>
 
         {/* Orders Table */}
@@ -340,7 +270,7 @@ const OrdersPage = () => {
                 </p>
                 <p className="mt-1 max-w-sm text-xs text-black/60 md:text-sm">
                   {isGuest
-                    ? "You have not placed any orders on this device yet. If you have an order ID from your receipt, you can search for it above."
+                    ? "You have not placed any orders on this device yet."
                     : "You have not placed any orders yet."}
                 </p>
                 <Link

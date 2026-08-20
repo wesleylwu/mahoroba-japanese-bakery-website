@@ -10,7 +10,6 @@ export const GET = async (req: NextRequest) => {
     const session = await getAuthSession();
     const { searchParams } = new URL(req.url);
     const idsParam = searchParams.get("ids");
-    const lookupId = searchParams.get("lookupId");
 
     const idList = idsParam
       ? idsParam
@@ -28,17 +27,10 @@ export const GET = async (req: NextRequest) => {
     let whereClause: Prisma.OrderWhereInput = { ...baseStatusFilter };
 
     if (session?.user?.isAdmin) {
-      if (lookupId) {
-        whereClause = { ...baseStatusFilter, id: lookupId };
-      }
+      whereClause = { ...baseStatusFilter };
     } else if (session?.user?.email) {
       const email = session.user.email;
-      if (lookupId) {
-        whereClause = {
-          ...baseStatusFilter,
-          id: lookupId,
-        };
-      } else if (idList.length > 0) {
+      if (idList.length > 0) {
         whereClause = {
           ...baseStatusFilter,
           OR: [
@@ -54,12 +46,7 @@ export const GET = async (req: NextRequest) => {
       }
     } else {
       // Guest user (unauthenticated)
-      if (lookupId) {
-        whereClause = {
-          ...baseStatusFilter,
-          id: lookupId,
-        };
-      } else if (idList.length > 0) {
+      if (idList.length > 0) {
         whereClause = {
           ...baseStatusFilter,
           id: { in: idList },

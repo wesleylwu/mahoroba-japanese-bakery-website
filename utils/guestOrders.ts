@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from "react";
+
 const STORAGE_KEY = "mahoroba_guest_orders";
 
 export const getGuestOrderIds = (): string[] => {
@@ -14,6 +16,33 @@ export const getGuestOrderIds = (): string[] => {
     return [];
   } catch (e) {
     console.error("Failed to read guest orders from localStorage", e);
+    return [];
+  }
+};
+
+export const useGuestOrderIds = (): string[] => {
+  const raw = useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener("guest_orders_updated", onStoreChange);
+      window.addEventListener("storage", onStoreChange);
+      return () => {
+        window.removeEventListener("guest_orders_updated", onStoreChange);
+        window.removeEventListener("storage", onStoreChange);
+      };
+    },
+    () => {
+      if (typeof window === "undefined") return "[]";
+      return localStorage.getItem(STORAGE_KEY) || "[]";
+    },
+    () => "[]",
+  );
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((id) => typeof id === "string" && id.trim().length > 0)
+      : [];
+  } catch {
     return [];
   }
 };
